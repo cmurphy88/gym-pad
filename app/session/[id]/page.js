@@ -88,6 +88,35 @@ export default function SessionPage({ params }) {
     router.push('/')
   }
 
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${session?.title}"? This action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
+    try {
+      const response = await fetch(`/api/workouts/${sessionId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete session')
+      }
+
+      // Show success toast
+      setToast({ message: 'Session deleted successfully!', type: 'success' })
+      
+      // Navigate back to dashboard after a short delay
+      setTimeout(() => {
+        router.push('/')
+      }, 1500)
+    } catch (error) {
+      console.error('Error deleting session:', error)
+      setToast({ message: 'Failed to delete session. Please try again.', type: 'error' })
+    }
+  }
+
   // Prevent navigation with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -159,6 +188,7 @@ export default function SessionPage({ params }) {
               onSave={handleSave}
               onCancel={handleCancelEdit}
               onUnsavedChanges={setHasUnsavedChanges}
+              onDelete={handleDelete}
             />
           ) : (
             <SessionDetail

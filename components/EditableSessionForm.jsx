@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { PlusIcon, TrashIcon, SaveIcon, XIcon, ArrowLeftIcon } from 'lucide-react'
 
-const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges }) => {
+const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDelete }) => {
   const [workoutData, setWorkoutData] = useState({
     title: '',
     date: '',
@@ -409,23 +409,34 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges }) =>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-between">
           <button
             type="button"
-            onClick={onCancel}
-            className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors disabled:opacity-50"
+            onClick={onDelete}
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
             disabled={isSubmitting}
           >
-            Cancel
+            <TrashIcon className="h-4 w-4 mr-2 inline" />
+            Delete Session
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex items-center px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg transition-colors"
-          >
-            <SaveIcon className="h-4 w-4 mr-2" />
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex items-center px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg transition-colors"
+            >
+              <SaveIcon className="h-4 w-4 mr-2" />
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -456,6 +467,7 @@ EditableSessionForm.propTypes = {
   onSave: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   onUnsavedChanges: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 }
 
 export default EditableSessionForm
