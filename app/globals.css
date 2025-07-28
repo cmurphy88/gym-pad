@@ -1,5 +1,29 @@
 @import 'tailwindcss';
 
+/* Prevent mobile zoom on input focus */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Ensure consistent input styling on mobile */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 h2 {
   font-size: 24px;
 }
