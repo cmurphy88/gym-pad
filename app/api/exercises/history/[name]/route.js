@@ -18,40 +18,28 @@ export async function GET(request, { params }) {
       );
     }
 
-    const exercises = await prisma.exercise.findMany({
-      where: {
-        name: exerciseName // SQLite doesn't support mode: 'insensitive'
-      },
-      include: {
-        workout: {
-          select: {
-            id: true,
-            title: true,
-            date: true
-          }
-        }
-      },
-      orderBy: {
-        workout: {
-          date: 'desc'
-        }
-      }
-    });
+    const exercises = await prisma.$queryRaw`
+      SELECT e.*, w.id as workout_id, w.title as workout_title, w.date as workout_date
+      FROM exercises e
+      JOIN workouts w ON e.workout_id = w.id
+      WHERE LOWER(e.name) = LOWER(${exerciseName})
+      ORDER BY w.date DESC
+    `;
 
     // Transform the data to match the expected format
     const history = exercises.map(exercise => {
-      const sets = parseSetsData(exercise.setsData);
+      const sets = parseSetsData(exercise.sets_data);
       const summary = calculateExerciseSummary(sets);
       
       return {
-        date: exercise.workout.date.toISOString().split('T')[0],
+        date: exercise.workout_date.toISOString().split('T')[0],
         sets: sets,
         // For backwards compatibility, provide summary data
         totalSets: summary.totalSets,
         totalReps: summary.totalReps,
         maxWeight: summary.maxWeight,
         totalVolume: summary.totalVolume,
-        workoutTitle: exercise.workout.title
+        workoutTitle: exercise.workout_title
       };
     });
 

@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate deploy && (npm run seed || echo 'Seeding skipped') && next build",
+    "build:dev": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "node lib/seed-templates.js",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",

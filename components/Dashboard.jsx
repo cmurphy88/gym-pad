@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useRouter } from 'next/navigation'
 import SessionCard from './SessionCard'
+import TemplateSelector from './TemplateSelector'
 import { PlusCircleIcon, DumbbellIcon } from 'lucide-react'
 
 /**
@@ -11,12 +13,21 @@ import { PlusCircleIcon, DumbbellIcon } from 'lucide-react'
  * @param {Function} props.openHistoryModal - Function to open exercise history modal
  */
 const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
+  const router = useRouter()
+  const [isTemplateSelectorOpen, setIsTemplateSelectorOpen] = useState(false)
+
+  const handleNewSession = () => {
+    setIsTemplateSelectorOpen(true)
+  }
   if (isLoading) {
     return (
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">Your Workouts</h2>
-          <button className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+          <button 
+            onClick={handleNewSession}
+            className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          >
             <PlusCircleIcon className="h-5 w-5 mr-2" />
             New Session
           </button>
@@ -42,7 +53,10 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Your Workouts</h2>
-        <button className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+        <button 
+          onClick={handleNewSession}
+          className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+        >
           <PlusCircleIcon className="h-5 w-5 mr-2" />
           New Session
         </button>
@@ -63,6 +77,12 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
           ))
         )}
       </div>
+
+      {/* Template Selector Modal */}
+      <TemplateSelector
+        isOpen={isTemplateSelectorOpen}
+        onClose={() => setIsTemplateSelectorOpen(false)}
+      />
     </div>
   )
 }

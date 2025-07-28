@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { validateWorkout } from '@/lib/validations';
+import { validateWorkout, validateExercise } from '@/lib/validations';
 import { parseSetsData } from '@/lib/migrate-sets';
 
 /**
@@ -56,7 +56,7 @@ export async function GET(request, { params }) {
 }
 
 /**
- * PUT /api/workouts/[id] - Update a workout
+ * PUT /api/workouts/[id] - Update a workout and its exercises
  */
 export async function PUT(request, { params }) {
   try {
@@ -80,27 +80,72 @@ export async function PUT(request, { params }) {
       );
     }
 
-    const workout = await prisma.workout.update({
-      where: { id: workoutId },
-      data: {
-        title: data.title,
-        date: new Date(data.date),
-        duration: data.duration || null,
-        notes: data.notes || null,
-      },
-      include: {
-        exercises: {
-          orderBy: {
-            orderIndex: 'asc'
-          }
+    // Validate exercises if provided
+    if (data.exercises && data.exercises.length > 0) {
+      for (let i = 0; i < data.exercises.length; i++) {
+        const exerciseValidation = validateExercise(data.exercises[i]);
+        if (!exerciseValidation.isValid) {
+          return NextResponse.json(
+            { error: `Exercise ${i + 1} validation failed`, details: exerciseValidation.errors },
+            { status: 400 }
+          );
         }
       }
+    }
+
+    // Update workout and exercises in a transaction
+    const result = await prisma.$transaction(async (prisma) => {
+      // Update the workout
+      const workout = await prisma.workout.update({
+        where: { id: workoutId },
+        data: {
+          title: data.title,
+          date: new Date(data.date),
+          notes: data.notes || null,
+        }
+      });
+
+      // If exercises are provided, replace all exercises
+      if (data.exercises) {
+        // Delete existing exercises
+        await prisma.exercise.deleteMany({
+          where: { workoutId: workoutId }
+        });
+
+        // Create new exercises
+        if (data.exercises.length > 0) {
+          const exercisesData = data.exercises.map((exercise, index) => ({
+            workoutId: workoutId,
+            name: exercise.name,
+            setsData: JSON.stringify(exercise.sets),
+            restSeconds: exercise.restSeconds || null,
+            notes: exercise.notes || null,
+            orderIndex: exercise.orderIndex !== undefined ? exercise.orderIndex : index,
+          }));
+
+          await prisma.exercise.createMany({
+            data: exercisesData
+          });
+        }
+      }
+
+      // Fetch the complete updated workout with exercises
+      return await prisma.workout.findUnique({
+        where: { id: workoutId },
+        include: {
+          exercises: {
+            orderBy: {
+              orderIndex: 'asc'
+            }
+          }
+        }
+      });
     });
 
     // Parse sets data for each exercise
     const workoutWithParsedSets = {
-      ...workout,
-      exercises: workout.exercises.map(exercise => ({
+      ...result,
+      exercises: result.exercises.map(exercise => ({
         ...exercise,
         sets: parseSetsData(exercise.setsData)
       }))

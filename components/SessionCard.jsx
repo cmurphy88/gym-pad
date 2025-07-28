@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { useRouter } from 'next/navigation'
 import { CalendarIcon, ClockIcon } from 'lucide-react'
 import ExerciseItem from './ExerciseItem'
 
@@ -10,6 +11,11 @@ import ExerciseItem from './ExerciseItem'
  * @param {Function} props.openHistoryModal - Function to open exercise history modal
  */
 const SessionCard = ({ session, openHistoryModal }) => {
+  const router = useRouter()
+
+  const handleViewDetails = () => {
+    router.push(`/session/${session.id}`)
+  }
   // Format date - handle both Date objects and strings
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -45,7 +51,10 @@ const SessionCard = ({ session, openHistoryModal }) => {
           <ClockIcon className="h-4 w-4 mr-1" />
           <span>{session.duration || 45} min</span>
         </div>
-        <button className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
+        <button 
+          onClick={handleViewDetails}
+          className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+        >
           View Details
         </button>
       </div>

@@ -12,32 +12,34 @@ const ExerciseItem = ({ exercise, onClick }) => {
   // Helper function to format sets display
   const formatSetsDisplay = (sets) => {
     if (!Array.isArray(sets) || sets.length === 0) {
-      return '0 sets';
+      return '0 sets'
     }
 
-    const totalSets = sets.length;
-    const weights = sets.map(set => set.weight || 0);
-    const reps = sets.map(set => set.reps || 0);
-    
+    const totalSets = sets.length
+    const weights = sets.map((set) => set.weight || 0)
+    const reps = sets.map((set) => set.reps || 0)
+
     // Check if all weights are the same
-    const sameWeight = weights.every(w => w === weights[0]);
+    const sameWeight = weights.every((w) => w === weights[0])
     // Check if all reps are the same
-    const sameReps = reps.every(r => r === reps[0]);
-    
+    const sameReps = reps.every((r) => r === reps[0])
+
     if (sameWeight && sameReps) {
-      // All sets identical: "4 sets × 8 reps · 185 lbs"
-      const weightDisplay = weights[0] > 0 ? ` · ${weights[0]} lbs` : '';
-      return `${totalSets} sets × ${reps[0]} reps${weightDisplay}`;
+      // All sets identical: "4 sets × 8 reps · 185 kg"
+      const weightDisplay = weights[0] > 0 ? ` · ${weights[0]} kg` : ''
+      return `${totalSets} sets × ${reps[0]} reps${weightDisplay}`
     } else {
       // Sets vary: "4 sets: 185×8, 185×7, 185×6, 185×5"
-      const setDetails = sets.map(set => {
-        const weight = set.weight || 0;
-        const rep = set.reps || 0;
-        return weight > 0 ? `${weight}×${rep}` : `${rep} reps`;
-      }).join(', ');
-      return `${totalSets} sets: ${setDetails}`;
+      const setDetails = sets
+        .map((set) => {
+          const weight = set.weight || 0
+          const rep = set.reps || 0
+          return weight > 0 ? `${weight}×${rep}` : `${rep} reps`
+        })
+        .join(', ')
+      return `${totalSets} sets: ${setDetails}`
     }
-  };
+  }
 
   return (
     <div

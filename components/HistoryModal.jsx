@@ -72,7 +72,7 @@ const HistoryModal = ({ exercise, onClose }) => {
                       </span>
                       {entry.maxWeight && entry.maxWeight > 0 && (
                         <span className="text-sm bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
-                          Max: {entry.maxWeight} lbs
+                          Max: {entry.maxWeight} kg
                         </span>
                       )}
                     </div>
@@ -84,7 +84,7 @@ const HistoryModal = ({ exercise, onClose }) => {
                           <div key={setIndex} className="bg-gray-600 rounded px-2 py-1 text-xs">
                             <span className="text-gray-300">Set {setIndex + 1}: </span>
                             <span className="text-white">
-                              {set.weight && set.weight > 0 ? `${set.weight}lbs × ` : ''}
+                              {set.weight && set.weight > 0 ? `${set.weight}kg × ` : ''}
                               {set.reps} reps
                             </span>
                           </div>
@@ -100,7 +100,7 @@ const HistoryModal = ({ exercise, onClose }) => {
                     {/* Summary info */}
                     <div className="text-xs text-gray-500 pt-2 border-t border-gray-600">
                       {entry.totalVolume ? (
-                        <span>Total Volume: {entry.totalVolume.toLocaleString()} lbs</span>
+                        <span>Total Volume: {entry.totalVolume.toLocaleString()} kg</span>
                       ) : null}
                     </div>
                   </div>

@@ -79,7 +79,7 @@ const ProgressChart = ({ history }) => {
             color: '#e5e7eb',
             fontWeight: 'bold',
           }}
-          formatter={(value, name) => [`${value} lbs`, 'Weight']}
+          formatter={(value, name) => [`${value} kg`, 'Weight']}
         />
         <Line
           type="monotone"

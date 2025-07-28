@@ -21,16 +21,18 @@ model User {
 }
 
 model Workout {
-  id        Int        @id @default(autoincrement())
-  userId    Int?       @map("user_id")
-  title     String
-  date      DateTime
-  duration  Int?       // in minutes
-  notes     String?
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-  user      User?      @relation(fields: [userId], references: [id])
-  exercises Exercise[]
+  id           Int                   @id @default(autoincrement())
+  userId       Int?                  @map("user_id")
+  templateId   Int?                  @map("template_id")
+  title        String
+  date         DateTime
+  duration     Int?                  // in minutes
+  notes        String?
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+  user         User?                 @relation(fields: [userId], references: [id])
+  exercises    Exercise[]
+  exerciseSwaps WorkoutExerciseSwap[]
 
   @@map("workouts")
 }
@@ -58,4 +60,44 @@ model ExerciseTemplate {
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("exercise_templates")
+}
+
+model SessionTemplate {
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  description       String?
+  isDefault         Boolean             @default(false) @map("is_default")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  templateExercises TemplateExercise[]
+
+  @@map("session_templates")
+}
+
+model TemplateExercise {
+  id            Int             @id @default(autoincrement())
+  templateId    Int             @map("template_id")
+  exerciseName  String          @map("exercise_name")
+  defaultSets   Int?            @map("default_sets")
+  defaultReps   Int?            @map("default_reps")
+  defaultWeight Float?          @map("default_weight")
+  orderIndex    Int             @map("order_index")
+  notes         String?
+  restSeconds   Int?            @map("rest_seconds")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  template      SessionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@map("template_exercises")
+}
+
+model WorkoutExerciseSwap {
+  id                   Int      @id @default(autoincrement())
+  workoutId            Int      @map("workout_id")
+  originalExerciseName String   @map("original_exercise_name")
+  swappedExerciseName  String   @map("swapped_exercise_name")
+  reason               String?
+  createdAt            DateTime @default(now()) @map("created_at")
+  workout              Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@map("workout_exercise_swaps")
 }
