@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { PlusIcon, TrashIcon, SaveIcon, XIcon, ArrowLeftIcon } from 'lucide-react'
+import TemplateGuidance from './TemplateGuidance'
 
 const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDelete }) => {
   const [workoutData, setWorkoutData] = useState({
@@ -12,6 +13,7 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
   
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [templateGuidance, setTemplateGuidance] = useState(null)
 
   // Initialize form data from session
   useEffect(() => {
@@ -30,6 +32,43 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
       })
     }
   }, [session])
+
+  // Fetch template guidance data if session was created from a template
+  useEffect(() => {
+    const fetchTemplateGuidance = async () => {
+      if (session?.templateId) {
+        try {
+          const response = await fetch(`/api/templates/${session.templateId}/latest-data`, {
+            credentials: 'include'
+          })
+          if (response.ok) {
+            const templateData = await response.json()
+            
+            // Create a map of exercise name to guidance data
+            const guidanceMap = {}
+            templateData.templateExercises.forEach(templateExercise => {
+              guidanceMap[templateExercise.name.toLowerCase()] = {
+                targetRepRange: templateExercise.targetRepRange,
+                restSeconds: templateExercise.restSeconds,
+                notes: templateExercise.notes,
+                latestSets: templateExercise.latestSets,
+                lastPerformed: templateExercise.lastPerformed,
+                exerciseHistory: templateExercise.exerciseHistory
+              }
+            })
+            
+            setTemplateGuidance(guidanceMap)
+          } else {
+            console.error('Failed to fetch template data:', response.status, response.statusText)
+          }
+        } catch (error) {
+          console.error('Error fetching template guidance:', error)
+        }
+      }
+    }
+
+    fetchTemplateGuidance()
+  }, [session?.templateId])
 
   // Track unsaved changes
   useEffect(() => {
@@ -324,6 +363,11 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
+
+                {/* Template Guidance */}
+                {templateGuidance && templateGuidance[exercise.name.toLowerCase()] && (
+                  <TemplateGuidance exercise={templateGuidance[exercise.name.toLowerCase()]} />
+                )}
 
                 {/* Sets */}
                 <div className="mb-3">

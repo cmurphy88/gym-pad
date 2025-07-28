@@ -1,4 +1,5 @@
 import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata = {
   title: 'Gym Pad - Your Workout Tracker',
@@ -9,7 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-900 text-gray-100">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

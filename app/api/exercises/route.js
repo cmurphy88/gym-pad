@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { validateExercise } from '@/lib/validations';
 import { parseSetsData } from '@/lib/migrate-sets';
+import { requireAuth } from '@/lib/middleware';
 
 /**
  * GET /api/exercises - Get all exercises or exercises for a specific workout
  */
 export async function GET(request) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const { searchParams } = new URL(request.url);
     const workoutId = searchParams.get('workoutId');
 
@@ -23,11 +27,21 @@ export async function GET(request) {
       }
       
       exercises = await prisma.exercise.findMany({
-        where: { workoutId: workoutIdInt },
+        where: { 
+          workoutId: workoutIdInt,
+          workout: {
+            userId: auth.user.id
+          }
+        },
         orderBy: { orderIndex: 'asc' }
       });
     } else {
       exercises = await prisma.exercise.findMany({
+        where: {
+          workout: {
+            userId: auth.user.id
+          }
+        },
         include: {
           workout: {
             select: {
@@ -62,6 +76,9 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const data = await request.json();
     
     // Validate the exercise data
@@ -73,10 +90,13 @@ export async function POST(request) {
       );
     }
 
-    // Verify workout exists
+    // Verify workout exists and belongs to user
     if (data.workoutId) {
       const workout = await prisma.workout.findUnique({
-        where: { id: data.workoutId }
+        where: { 
+          id: data.workoutId,
+          userId: auth.user.id
+        }
       });
       
       if (!workout) {

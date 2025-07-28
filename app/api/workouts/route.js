@@ -2,13 +2,20 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { validateWorkout, validateExercise } from '@/lib/validations';
 import { parseSetsData } from '@/lib/migrate-sets';
+import { requireAuth } from '@/lib/middleware';
 
 /**
  * GET /api/workouts - Get all workouts
  */
-export async function GET() {
+export async function GET(request) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const workouts = await prisma.workout.findMany({
+      where: {
+        userId: auth.user.id
+      },
       include: {
         exercises: {
           orderBy: {
@@ -45,6 +52,9 @@ export async function GET() {
  */
 export async function POST(request) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const data = await request.json();
     
     // Validate the workout data
@@ -74,6 +84,7 @@ export async function POST(request) {
       // Create the workout
       const workout = await prisma.workout.create({
         data: {
+          userId: auth.user.id,
           title: data.title,
           date: new Date(data.date),
           duration: data.duration || null,

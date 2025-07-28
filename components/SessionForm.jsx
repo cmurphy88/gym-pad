@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { PlusIcon, TrashIcon, SaveIcon, XIcon } from 'lucide-react'
+import TemplateGuidance from './TemplateGuidance'
 
 const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
   const [workoutData, setWorkoutData] = useState({
@@ -268,6 +269,11 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                   <TrashIcon className="h-4 w-4" />
                 </button>
               </div>
+
+              {/* Template Guidance */}
+              {exercise.templateGuidance && (
+                <TemplateGuidance exercise={exercise.templateGuidance} />
+              )}
 
               {/* Sets */}
               <div className="mb-3">

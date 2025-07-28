@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { validateWorkout, validateExercise } from '@/lib/validations';
 import { parseSetsData } from '@/lib/migrate-sets';
+import { requireAuth } from '@/lib/middleware';
 
 /**
  * GET /api/workouts/[id] - Get a specific workout
  */
 export async function GET(request, { params }) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const resolvedParams = await params;
     const workoutId = parseInt(resolvedParams.id);
     
@@ -19,7 +23,10 @@ export async function GET(request, { params }) {
     }
 
     const workout = await prisma.workout.findUnique({
-      where: { id: workoutId },
+      where: { 
+        id: workoutId,
+        userId: auth.user.id
+      },
       include: {
         exercises: {
           orderBy: {
@@ -60,6 +67,9 @@ export async function GET(request, { params }) {
  */
 export async function PUT(request, { params }) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const resolvedParams = await params;
     const workoutId = parseInt(resolvedParams.id);
     const data = await request.json();
@@ -97,7 +107,10 @@ export async function PUT(request, { params }) {
     const result = await prisma.$transaction(async (prisma) => {
       // Update the workout
       const workout = await prisma.workout.update({
-        where: { id: workoutId },
+        where: { 
+          id: workoutId,
+          userId: auth.user.id
+        },
         data: {
           title: data.title,
           date: new Date(data.date),
@@ -131,7 +144,10 @@ export async function PUT(request, { params }) {
 
       // Fetch the complete updated workout with exercises
       return await prisma.workout.findUnique({
-        where: { id: workoutId },
+        where: { 
+          id: workoutId,
+          userId: auth.user.id
+        },
         include: {
           exercises: {
             orderBy: {
@@ -166,6 +182,9 @@ export async function PUT(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const resolvedParams = await params;
     const workoutId = parseInt(resolvedParams.id);
     
@@ -177,7 +196,10 @@ export async function DELETE(request, { params }) {
     }
 
     await prisma.workout.delete({
-      where: { id: workoutId }
+      where: { 
+        id: workoutId,
+        userId: auth.user.id
+      }
     });
 
     return NextResponse.json({ message: 'Workout deleted successfully' });

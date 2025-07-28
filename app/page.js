@@ -2,19 +2,30 @@
 
 import { useState } from 'react'
 import useSWR from 'swr'
+import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Dashboard from '@/components/Dashboard'
 import HistoryModal from '@/components/HistoryModal'
+import AuthForm from '@/components/AuthForm'
 
 // Fetcher function for SWR
-const fetcher = (url) => fetch(url).then((res) => res.json())
+const fetcher = (url) => fetch(url, { credentials: 'include' }).then((res) => {
+  if (!res.ok) {
+    throw new Error('Failed to fetch')
+  }
+  return res.json()
+})
 
 export default function HomePage() {
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth()
   const [selectedExercise, setSelectedExercise] = useState(null)
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false)
 
-  // Fetch workouts data using SWR
-  const { data: workouts, error, isLoading } = useSWR('/api/workouts', fetcher)
+  // Fetch workouts data using SWR, but only if authenticated
+  const { data: workouts, error, isLoading } = useSWR(
+    isAuthenticated ? '/api/workouts' : null, 
+    fetcher
+  )
 
   const openHistoryModal = (exercise) => {
     setSelectedExercise(exercise)
@@ -24,6 +35,20 @@ export default function HomePage() {
   const closeHistoryModal = () => {
     setIsHistoryModalOpen(false)
     setSelectedExercise(null)
+  }
+
+  // Show loading spinner while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-gray-100">Loading...</div>
+      </div>
+    )
+  }
+
+  // Show auth form if not authenticated
+  if (!isAuthenticated) {
+    return <AuthForm />
   }
 
   if (error) {

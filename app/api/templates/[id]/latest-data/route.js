@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { parseSetsData } from '@/lib/migrate-sets'
+import { requireAuth } from '@/lib/middleware'
 
 /**
  * GET /api/templates/[id]/latest-data - Get template with latest workout data pre-filled
  */
 export async function GET(request, { params }) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const resolvedParams = await params
     const templateId = parseInt(resolvedParams.id)
     
@@ -43,21 +47,27 @@ export async function GET(request, { params }) {
         let suggestedWeight = templateExercise.defaultWeight
         let suggestedReps = templateExercise.defaultReps
         let lastPerformed = null
+        let exerciseHistory = []
 
         try {
-          // Find the most recent exercise with this name using raw query for SQLite compatibility
+          // Find the most recent 2 exercises with this name
           const latestExercises = await prisma.$queryRaw`
             SELECT e.*, w.date as workout_date
             FROM exercises e
             JOIN workouts w ON e.workout_id = w.id
             WHERE LOWER(e.name) = LOWER(${templateExercise.exerciseName})
+              AND w.user_id = ${auth.user.id}
             ORDER BY w.date DESC
-            LIMIT 1
+            LIMIT 2
           `
 
-          const latestExercise = latestExercises[0]
+          exerciseHistory = latestExercises.map(exercise => ({
+            date: exercise.workout_date,
+            sets: parseSetsData(exercise.sets_data)
+          }))
 
-          if (latestExercise) {
+          if (latestExercises.length > 0) {
+            const latestExercise = latestExercises[0]
             lastPerformed = latestExercise.workout_date
             // Parse the latest sets data
             latestSets = parseSetsData(latestExercise.sets_data)
@@ -87,12 +97,14 @@ export async function GET(request, { params }) {
           name: templateExercise.exerciseName,
           defaultSets: templateExercise.defaultSets,
           defaultReps: suggestedReps,
+          targetRepRange: templateExercise.targetRepRange,
           defaultWeight: suggestedWeight,
           orderIndex: templateExercise.orderIndex,
           notes: templateExercise.notes,
           restSeconds: templateExercise.restSeconds,
           latestSets: latestSets,
-          lastPerformed: lastPerformed
+          lastPerformed: lastPerformed,
+          exerciseHistory: exerciseHistory
         }
       })
     )

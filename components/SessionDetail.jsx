@@ -106,7 +106,7 @@ const SessionDetail = ({ session, onEdit, onBack }) => {
                     </span>
                     {exercise.sets.some(set => set.weight) && (
                       <span>
-                        Max Weight: {Math.max(...exercise.sets.map(set => set.weight || 0))} kg
+                        Total Weight: {exercise.sets.reduce((sum, set) => sum + ((set.weight || 0) * (set.reps || 0)), 0)} kg
                       </span>
                     )}
                   </div>
@@ -157,16 +157,15 @@ const SessionDetail = ({ session, onEdit, onBack }) => {
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="text-2xl font-bold text-purple-400">
               {session.exercises && session.exercises.length > 0
-                ? (() => {
-                    const allWeights = session.exercises.flatMap(ex => 
-                      ex.sets ? ex.sets.map(set => set.weight || 0).filter(w => w > 0) : []
-                    )
-                    return allWeights.length > 0 ? Math.max(...allWeights) : 0
-                  })()
+                ? session.exercises.reduce((totalVolume, ex) => 
+                    totalVolume + (ex.sets ? ex.sets.reduce((exVolume, set) => 
+                      exVolume + ((set.weight || 0) * (set.reps || 0)), 0
+                    ) : 0), 0
+                  )
                 : 0
               } kg
             </div>
-            <div className="text-sm text-gray-400">Max Weight</div>
+            <div className="text-sm text-gray-400">Total Weight</div>
           </div>
         </div>
       </div>

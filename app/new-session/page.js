@@ -39,7 +39,16 @@ function NewSessionContent() {
                 weight: templateExercise.defaultWeight || ''
               })),
           notes: templateExercise.notes || '',
-          restSeconds: templateExercise.restSeconds || 60
+          restSeconds: templateExercise.restSeconds || 60,
+          // Template guidance data
+          templateGuidance: {
+            targetRepRange: templateExercise.targetRepRange,
+            restSeconds: templateExercise.restSeconds,
+            notes: templateExercise.notes,
+            latestSets: templateExercise.latestSets,
+            lastPerformed: templateExercise.lastPerformed,
+            exerciseHistory: templateExercise.exerciseHistory
+          }
         }))
       }
       setTemplateData(formattedTemplate)

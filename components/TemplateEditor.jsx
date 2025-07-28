@@ -29,6 +29,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
           name: exercise.exerciseName,
           defaultSets: exercise.defaultSets || 3,
           defaultReps: exercise.defaultReps || 8,
+          targetRepRange: exercise.targetRepRange || '',
           defaultWeight: exercise.defaultWeight || '',
           notes: exercise.notes || '',
           restSeconds: exercise.restSeconds || 60,
@@ -59,6 +60,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
       name: '',
       defaultSets: 3,
       defaultReps: 8,
+      targetRepRange: '',
       defaultWeight: '',
       notes: '',
       restSeconds: 60,
@@ -152,6 +154,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
         name: exercise.name.trim(),
         defaultSets: parseInt(exercise.defaultSets),
         defaultReps: parseInt(exercise.defaultReps),
+        targetRepRange: exercise.targetRepRange.trim() || null,
         defaultWeight: exercise.defaultWeight ? parseFloat(exercise.defaultWeight) : null,
         notes: exercise.notes.trim() || null,
         restSeconds: exercise.restSeconds ? parseInt(exercise.restSeconds) : null,
@@ -290,7 +293,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                 </div>
 
                 {/* Exercise defaults */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-400 mb-1">
                       Default Sets *
@@ -327,6 +330,20 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                         {errors[`exercise_${exerciseIndex}_reps`]}
                       </p>
                     )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1">
+                      Target Rep Range
+                    </label>
+                    <input
+                      type="text"
+                      value={exercise.targetRepRange}
+                      onChange={(e) => updateExercise(exercise.id, 'targetRepRange', e.target.value)}
+                      className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      placeholder="8-12, AMRAP, etc."
+                      disabled={isSubmitting}
+                    />
                   </div>
                   
                   <div>

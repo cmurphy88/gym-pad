@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
-import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon, LogOutIcon } from 'lucide-react'
 
 /**
  * Header component with navigation and branding
  */
 const Header = () => {
   const router = useRouter()
+  const { user, logout } = useAuth()
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const menuRef = useRef(null)
 
   const handleHomeClick = () => {
     router.push('/')
@@ -16,6 +20,25 @@ const Header = () => {
   const handleTemplatesClick = () => {
     router.push('/templates')
   }
+
+  const handleLogout = async () => {
+    await logout()
+    setShowUserMenu(false)
+  }
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   return (
     <header className="bg-gray-800 border-b border-gray-700">
@@ -38,9 +61,40 @@ const Header = () => {
           <button className="p-2 rounded-full hover:bg-gray-700 transition-colors">
             <CalendarIcon className="h-5 w-5 text-gray-300" />
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-700 transition-colors">
-            <UserIcon className="h-5 w-5 text-gray-300" />
-          </button>
+          
+          {/* User Menu */}
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="p-2 rounded-full hover:bg-gray-700 transition-colors flex items-center space-x-2"
+              title={user?.name || 'User menu'}
+            >
+              <UserIcon className="h-5 w-5 text-gray-300" />
+              {user && (
+                <span className="text-sm text-gray-300 hidden sm:inline">
+                  {user.name}
+                </span>
+              )}
+            </button>
+            
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50">
+                <div className="py-1">
+                  <div className="px-4 py-2 text-sm text-gray-300 border-b border-gray-700">
+                    Signed in as<br />
+                    <span className="font-medium">{user?.username}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                  >
+                    <LogOutIcon className="h-4 w-4" />
+                    <span>Sign out</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

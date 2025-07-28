@@ -63,6 +63,7 @@ export async function POST(request) {
           exerciseName: exercise.name,
           defaultSets: exercise.defaultSets || null,
           defaultReps: exercise.defaultReps || null,
+          targetRepRange: exercise.targetRepRange?.trim() || null,
           defaultWeight: exercise.defaultWeight || null,
           orderIndex: exercise.orderIndex !== undefined ? exercise.orderIndex : index,
           notes: exercise.notes?.trim() || null,

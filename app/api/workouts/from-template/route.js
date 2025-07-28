@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { validateWorkout, validateExercise } from '@/lib/validations'
+import { requireAuth } from '@/lib/middleware'
 
 /**
  * POST /api/workouts/from-template - Create a workout from a template
  */
 export async function POST(request) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     const data = await request.json()
     
     // Validate required fields
@@ -70,6 +74,7 @@ export async function POST(request) {
       // Create the workout
       const workout = await prisma.workout.create({
         data: {
+          userId: auth.user.id,
           templateId: data.templateId,
           title: data.title.trim(),
           date: new Date(data.date),

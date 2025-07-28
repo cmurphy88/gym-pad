@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { parseSetsData, calculateExerciseSummary } from '@/lib/migrate-sets';
+import { requireAuth } from '@/lib/middleware';
 
 /**
  * GET /api/exercises/history/[name] - Get exercise history by name
  */
 export async function GET(request, { params }) {
   try {
+    const auth = await requireAuth(request);
+    if (auth instanceof NextResponse) return auth;
+    
     // Await params in Next.js 15+
     const resolvedParams = await params;
     const exerciseName = decodeURIComponent(resolvedParams.name);
@@ -23,6 +27,7 @@ export async function GET(request, { params }) {
       FROM exercises e
       JOIN workouts w ON e.workout_id = w.id
       WHERE LOWER(e.name) = LOWER(${exerciseName})
+        AND w.user_id = ${auth.user.id}
       ORDER BY w.date DESC
     `;
 

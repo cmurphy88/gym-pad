@@ -12,17 +12,30 @@ datasource db {
 
 model User {
   id        Int       @id @default(autoincrement())
-  email     String    @unique
+  username  String    @unique
+  password  String
   name      String
   createdAt DateTime  @default(now()) @map("created_at")
   workouts  Workout[]
+  sessions  Session[]
 
   @@map("users")
 }
 
+model Session {
+  id        String   @id @default(cuid())
+  userId    Int      @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
 model Workout {
   id           Int                   @id @default(autoincrement())
-  userId       Int?                  @map("user_id")
+  userId       Int                   @map("user_id")
   templateId   Int?                  @map("template_id")
   title        String
   date         DateTime
@@ -30,7 +43,7 @@ model Workout {
   notes        String?
   createdAt    DateTime              @default(now()) @map("created_at")
   updatedAt    DateTime              @updatedAt @map("updated_at")
-  user         User?                 @relation(fields: [userId], references: [id])
+  user         User                  @relation(fields: [userId], references: [id])
   exercises    Exercise[]
   exerciseSwaps WorkoutExerciseSwap[]
 
@@ -80,6 +93,7 @@ model TemplateExercise {
   exerciseName  String          @map("exercise_name")
   defaultSets   Int?            @map("default_sets")
   defaultReps   Int?            @map("default_reps")
+  targetRepRange String?        @map("target_rep_range")
   defaultWeight Float?          @map("default_weight")
   orderIndex    Int             @map("order_index")
   notes         String?
