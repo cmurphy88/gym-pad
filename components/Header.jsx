@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon, LogOutIcon } from 'lucide-react'
+import CalendarModal from './CalendarModal'
 
 /**
  * Header component with navigation and branding
@@ -11,6 +12,7 @@ const Header = () => {
   const router = useRouter()
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const menuRef = useRef(null)
 
   const handleHomeClick = () => {
@@ -19,6 +21,14 @@ const Header = () => {
 
   const handleTemplatesClick = () => {
     router.push('/templates')
+  }
+
+  const handleCalendarClick = () => {
+    setShowCalendar(true)
+  }
+
+  const handleCalendarClose = () => {
+    setShowCalendar(false)
   }
 
   const handleLogout = async () => {
@@ -58,7 +68,11 @@ const Header = () => {
           >
             <SettingsIcon className="h-5 w-5 text-gray-300" />
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-700 transition-colors">
+          <button 
+            onClick={handleCalendarClick}
+            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            title="View Calendar"
+          >
             <CalendarIcon className="h-5 w-5 text-gray-300" />
           </button>
           
@@ -97,6 +111,12 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Calendar Modal */}
+      <CalendarModal 
+        isOpen={showCalendar} 
+        onClose={handleCalendarClose} 
+      />
     </header>
   )
 }
