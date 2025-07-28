@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useSWR from 'swr'
 import SessionForm from '@/components/SessionForm'
@@ -8,7 +8,7 @@ import Header from '@/components/Header'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
-export default function NewSessionPage() {
+function NewSessionContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -144,5 +144,23 @@ export default function NewSessionPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function NewSessionPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
+        <Header />
+        <main className="flex-1 p-4 md:p-6 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading...</p>
+          </div>
+        </main>
+      </div>
+    }>
+      <NewSessionContent />
+    </Suspense>
   )
 }
