@@ -1,9 +1,16 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { CalendarIcon, ClockIcon } from 'lucide-react'
 import ExerciseItem from './ExerciseItem'
 
+/**
+ * SessionCard component displaying a workout session
+ * @param {Object} props
+ * @param {Object} props.session - Workout session data
+ * @param {Function} props.openHistoryModal - Function to open exercise history modal
+ */
 const SessionCard = ({ session, openHistoryModal }) => {
-  // Format date
+  // Format date - handle both Date objects and strings
   const formatDate = (dateString) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
@@ -24,7 +31,7 @@ const SessionCard = ({ session, openHistoryModal }) => {
           </div>
         </div>
         <div className="space-y-3 mt-4">
-          {session.exercises.map((exercise) => (
+          {session.exercises && session.exercises.map((exercise) => (
             <ExerciseItem
               key={exercise.id}
               exercise={exercise}
@@ -36,7 +43,7 @@ const SessionCard = ({ session, openHistoryModal }) => {
       <div className="px-5 py-3 bg-gray-900 border-t border-gray-700 flex justify-between items-center">
         <div className="flex items-center text-gray-400 text-sm">
           <ClockIcon className="h-4 w-4 mr-1" />
-          <span>45 min</span>
+          <span>{session.duration || 45} min</span>
         </div>
         <button className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
           View Details
@@ -44,6 +51,25 @@ const SessionCard = ({ session, openHistoryModal }) => {
       </div>
     </div>
   )
+}
+
+SessionCard.propTypes = {
+  session: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]).isRequired,
+    duration: PropTypes.number,
+    exercises: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        sets: PropTypes.number.isRequired,
+        reps: PropTypes.number.isRequired,
+        weight: PropTypes.number,
+      })
+    ),
+  }).isRequired,
+  openHistoryModal: PropTypes.func.isRequired,
 }
 
 export default SessionCard

@@ -1,6 +1,10 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { DumbbellIcon, CalendarIcon, UserIcon } from 'lucide-react'
 
+/**
+ * Header component with navigation and branding
+ */
 const Header = () => {
   return (
     <header className="bg-gray-800 border-b border-gray-700">
@@ -21,5 +25,7 @@ const Header = () => {
     </header>
   )
 }
+
+Header.propTypes = {}
 
 export default Header

@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  workouts  Workout[]
+
+  @@map("users")
+}
+
+model Workout {
+  id        Int        @id @default(autoincrement())
+  userId    Int?       @map("user_id")
+  title     String
+  date      DateTime
+  duration  Int?       // in minutes
+  notes     String?
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  user      User?      @relation(fields: [userId], references: [id])
+  exercises Exercise[]
+
+  @@map("workouts")
+}
+
+model Exercise {
+  id          Int     @id @default(autoincrement())
+  workoutId   Int     @map("workout_id")
+  name        String
+  setsData    String  @map("sets_data") // JSON string storing array of sets
+  restSeconds Int?    @map("rest_seconds")
+  notes       String?
+  orderIndex  Int     @map("order_index")
+  createdAt   DateTime @default(now()) @map("created_at")
+  workout     Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@map("exercises")
+}
+
+model ExerciseTemplate {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  category     String?
+  muscleGroups String?  @map("muscle_groups") // JSON string for SQLite
+  instructions String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("exercise_templates")
+}
