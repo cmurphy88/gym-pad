@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon, LogOutIcon } from 'lucide-react'
+import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon, LogOutIcon, ScaleIcon } from 'lucide-react'
 import CalendarModal from './CalendarModal'
 
 /**
@@ -21,6 +21,10 @@ const Header = () => {
 
   const handleTemplatesClick = () => {
     router.push('/templates')
+  }
+
+  const handleWeightClick = () => {
+    router.push('/weight')
   }
 
   const handleCalendarClick = () => {
@@ -67,6 +71,13 @@ const Header = () => {
             title="Manage Templates"
           >
             <SettingsIcon className="h-5 w-5 text-gray-300" />
+          </button>
+          <button 
+            onClick={handleWeightClick}
+            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            title="Weight Tracking"
+          >
+            <ScaleIcon className="h-5 w-5 text-gray-300" />
           </button>
           <button 
             onClick={handleCalendarClick}

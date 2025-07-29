@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
 import SessionCard from './SessionCard'
 import TemplateSelector from './TemplateSelector'
+import WeightSummary from './WeightSummary'
 import { PlusCircleIcon, DumbbellIcon } from 'lucide-react'
 
 /**
@@ -24,7 +25,7 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">Your Workouts</h2>
-          <button 
+          <button
             onClick={handleNewSession}
             className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
@@ -53,7 +54,7 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Your Workouts</h2>
-        <button 
+        <button
           onClick={handleNewSession}
           className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
         >
@@ -61,7 +62,13 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
           New Session
         </button>
       </div>
+      {/* Weight Summary */}
+      <div className="mb-6">
+        <WeightSummary />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 className="font-bold">Workouts</h2>
         {workouts.length === 0 ? (
           <div className="col-span-full text-center text-gray-400 py-12">
             <DumbbellIcon className="h-12 w-12 mx-auto mb-4 text-gray-600" />
