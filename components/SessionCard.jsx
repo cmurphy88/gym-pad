@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
-import { CalendarIcon, ClockIcon } from 'lucide-react'
+import { CalendarIcon, ClockIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react'
 import ExerciseItem from './ExerciseItem'
 
 /**
@@ -12,9 +12,14 @@ import ExerciseItem from './ExerciseItem'
  */
 const SessionCard = ({ session, openHistoryModal }) => {
   const router = useRouter()
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleViewDetails = () => {
     router.push(`/session/${session.id}`)
+  }
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded)
   }
   // Format date - handle both Date objects and strings
   const formatDate = (dateString) => {
@@ -28,36 +33,57 @@ const SessionCard = ({ session, openHistoryModal }) => {
 
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-500/50 transition-all shadow-lg">
-      <div className="p-5">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-bold text-white">{session.title}</h3>
+      {/* Collapsible Header */}
+      <div 
+        className="p-4 cursor-pointer hover:bg-gray-750 transition-colors"
+        onClick={toggleExpanded}
+      >
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-400 hover:text-purple-400 transition-colors">
+              {isExpanded ? (
+                <ChevronDownIcon className="h-5 w-5" />
+              ) : (
+                <ChevronRightIcon className="h-5 w-5" />
+              )}
+            </button>
+            <h3 className="text-lg font-bold text-white">{session.title}</h3>
+          </div>
           <div className="flex items-center text-gray-400 text-sm">
             <CalendarIcon className="h-4 w-4 mr-1" />
             <span>{formatDate(session.date)}</span>
           </div>
         </div>
-        <div className="space-y-3 mt-4">
-          {session.exercises && session.exercises.map((exercise) => (
-            <ExerciseItem
-              key={exercise.id}
-              exercise={exercise}
-              onClick={() => openHistoryModal(exercise.name)}
-            />
-          ))}
-        </div>
       </div>
-      <div className="px-5 py-3 bg-gray-900 border-t border-gray-700 flex justify-between items-center">
-        <div className="flex items-center text-gray-400 text-sm">
-          <ClockIcon className="h-4 w-4 mr-1" />
-          <span>{session.duration || 45} min</span>
+
+      {/* Collapsible Content */}
+      {isExpanded && (
+        <div className="border-t border-gray-700">
+          <div className="p-5">
+            <div className="space-y-3">
+              {session.exercises && session.exercises.map((exercise) => (
+                <ExerciseItem
+                  key={exercise.id}
+                  exercise={exercise}
+                  onClick={() => openHistoryModal(exercise.name)}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="px-5 py-3 bg-gray-900 border-t border-gray-700 flex justify-between items-center">
+            <div className="flex items-center text-gray-400 text-sm">
+              <ClockIcon className="h-4 w-4 mr-1" />
+              <span>{session.duration || 45} min</span>
+            </div>
+            <button 
+              onClick={handleViewDetails}
+              className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+            >
+              View Details
+            </button>
+          </div>
         </div>
-        <button 
-          onClick={handleViewDetails}
-          className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
-        >
-          View Details
-        </button>
-      </div>
+      )}
     </div>
   )
 }
