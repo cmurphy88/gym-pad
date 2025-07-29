@@ -53,7 +53,7 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Your Workouts</h2>
+        <h2 className="text-2xl font-bold text-white">Weight</h2>
         <button
           onClick={handleNewSession}
           className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"

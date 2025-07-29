@@ -64,37 +64,40 @@ const Header = () => {
           <DumbbellIcon className="h-6 w-6 text-purple-500" />
           <h1 className="text-xl font-bold text-white">GymPad</h1>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-1">
           <button 
             onClick={handleTemplatesClick}
-            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-700 transition-colors"
             title="Manage Templates"
           >
-            <SettingsIcon className="h-5 w-5 text-gray-300" />
+            <SettingsIcon className="h-4 w-4 text-gray-300" />
           </button>
           <button 
             onClick={handleWeightClick}
-            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-700 transition-colors"
             title="Weight Tracking"
           >
-            <ScaleIcon className="h-5 w-5 text-gray-300" />
+            <ScaleIcon className="h-4 w-4 text-gray-300" />
           </button>
           <button 
             onClick={handleCalendarClick}
-            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-700 transition-colors"
             title="View Calendar"
           >
-            <CalendarIcon className="h-5 w-5 text-gray-300" />
+            <CalendarIcon className="h-4 w-4 text-gray-300" />
           </button>
+          
+          {/* Separator */}
+          <div className="h-6 w-px bg-gray-600 mx-2"></div>
           
           {/* User Menu */}
           <div className="relative" ref={menuRef}>
             <button 
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="p-2 rounded-full hover:bg-gray-700 transition-colors flex items-center space-x-2"
+              className="p-1.5 rounded-md hover:bg-gray-700 transition-colors flex items-center space-x-2"
               title={user?.name || 'User menu'}
             >
-              <UserIcon className="h-5 w-5 text-gray-300" />
+              <UserIcon className="h-4 w-4 text-gray-300" />
               {user && (
                 <span className="text-sm text-gray-300 hidden sm:inline">
                   {user.name}

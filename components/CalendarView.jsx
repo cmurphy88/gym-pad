@@ -17,19 +17,22 @@ const CalendarView = ({ onClose }) => {
     const fetchWorkouts = async () => {
       setIsLoading(true)
       setError(null)
-      
+
       try {
         const year = currentMonth.getFullYear()
         const month = currentMonth.getMonth() + 1
-        
-        const response = await fetch(`/api/workouts/calendar?year=${year}&month=${month}`, {
-          credentials: 'include'
-        })
-        
+
+        const response = await fetch(
+          `/api/workouts/calendar?year=${year}&month=${month}`,
+          {
+            credentials: 'include',
+          }
+        )
+
         if (!response.ok) {
           throw new Error('Failed to fetch calendar data')
         }
-        
+
         const data = await response.json()
         setWorkoutData(data.workouts)
       } catch (err) {
@@ -43,12 +46,11 @@ const CalendarView = ({ onClose }) => {
     fetchWorkouts()
   }, [currentMonth])
 
-
   // Handle day click
   const handleDayClick = (date) => {
     const dateKey = date.toISOString().split('T')[0]
     const workouts = workoutData[dateKey] || []
-    
+
     if (workouts.length === 1) {
       // Navigate directly to the workout if there's only one
       router.push(`/session/${workouts[0].id}`)
@@ -97,10 +99,10 @@ const CalendarView = ({ onClose }) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
         </div>
       ) : (
-        <div 
+        <div
           className="calendar-container"
           style={{
-            '--workout-days': JSON.stringify(Object.keys(workoutData))
+            '--workout-days': JSON.stringify(Object.keys(workoutData)),
           }}
         >
           <DayPicker
@@ -114,7 +116,7 @@ const CalendarView = ({ onClose }) => {
                 const dateKey = date.toISOString().split('T')[0]
                 const workouts = workoutData[dateKey] || []
                 return workouts.length > 0
-              }
+              },
             }}
             components={{
               Day: (props) => {
@@ -123,7 +125,7 @@ const CalendarView = ({ onClose }) => {
                 const dateKey = date.toISOString().split('T')[0]
                 const workouts = workoutData[dateKey] || []
                 const hasWorkouts = workouts.length > 0
-                
+
                 let workoutText = ''
                 if (hasWorkouts) {
                   if (workouts.length === 1) {
@@ -132,24 +134,33 @@ const CalendarView = ({ onClose }) => {
                     workoutText = `${workouts.length} workouts`
                   }
                 }
-                
+
                 return (
-                  <td 
+                  <td
                     {...otherProps}
-                    className={`${otherProps.className || ''} ${hasWorkouts ? 'has-workout-day' : ''}`}
+                    className={`${otherProps.className || ''} ${
+                      hasWorkouts ? 'has-workout-day' : ''
+                    }`}
                     data-workout-text={workoutText}
                   >
                     <button
                       type="button"
                       className="rdp-day_button"
                       onClick={() => handleDayClick(date)}
-                      aria-label={`${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
+                      aria-label={`${date.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}`}
                     >
                       <div className="day-content">
                         <span className="day-number">{date.getDate()}</span>
                         {hasWorkouts && (
                           <span className="workout-info">
-                            {workouts.length === 1 ? workouts[0].title : `${workouts.length} workouts`}
+                            {workouts.length === 1
+                              ? workouts[0].title
+                              : `${workouts.length} workouts`}
                           </span>
                         )}
                       </div>
@@ -158,7 +169,7 @@ const CalendarView = ({ onClose }) => {
                 )
               },
               IconLeft: () => <ChevronLeftIcon className="h-4 w-4" />,
-              IconRight: () => <ChevronRightIcon className="h-4 w-4" />
+              IconRight: () => <ChevronRightIcon className="h-4 w-4" />,
             }}
           />
         </div>
@@ -172,7 +183,7 @@ const CalendarView = ({ onClose }) => {
 }
 
 CalendarView.propTypes = {
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
 }
 
 export default CalendarView
