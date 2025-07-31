@@ -4,9 +4,9 @@ import { createTestUser, expectAuthResponse, expectErrorResponse } from '../../h
 import { ApiTester } from '../../helpers/requestHelpers.js';
 import { generateUserValidationTests, createTestDataSets } from '../../helpers/validationHelpers.js';
 
-// Mock the auth module at the top level
-jest.mock('../../../lib/auth.js', () => ({
-  ...jest.requireActual('../../../lib/auth.js'),
+// Mock the auth module at the top level using the path alias
+jest.mock('@/lib/auth', () => ({
+  ...jest.requireActual('@/lib/auth'),
   hashPassword: jest.fn(),
   createSession: jest.fn(),
 }));
@@ -352,12 +352,10 @@ describe('/api/auth/register', () => {
     });
 
     test('should handle password hashing errors', async () => {
-      // Get the mocked function
-      const authModule = await import('../../../lib/auth.js');
-      const mockHashPassword = authModule.hashPassword;
-      
-      // Mock hashPassword to throw an error
-      mockHashPassword.mockRejectedValue(new Error('Hashing failed'));
+      // Mock bcrypt to fail hashing - this will cause hashPassword to fail
+      const bcrypt = require('bcryptjs');
+      const originalHash = bcrypt.hash;
+      bcrypt.hash = jest.fn().mockRejectedValue(new Error('Hashing failed'));
 
       const userData = {
         username: `hashuser_${Date.now()}`,
@@ -368,16 +366,15 @@ describe('/api/auth/register', () => {
       const response = await tester.post(userData);
       expectErrorResponse(response, 500, 'Internal server error');
 
-      mockHashPassword.mockReset();
+      // Restore original function
+      bcrypt.hash = originalHash;
     });
 
     test('should handle session creation errors', async () => {
-      // Get the mocked function
-      const authModule = await import('../../../lib/auth.js');
-      const mockCreateSession = authModule.createSession;
-      
-      // Mock createSession to throw an error
-      mockCreateSession.mockRejectedValue(new Error('Session creation failed'));
+      // Mock Prisma session creation to fail after user creation succeeds
+      const { prisma } = await import('../../setup/setupTests.js');
+      const originalSessionCreate = prisma.session.create;
+      prisma.session.create = jest.fn().mockRejectedValue(new Error('Session creation failed'));
 
       const userData = {
         username: `sessionuser_${Date.now()}`,
@@ -388,7 +385,8 @@ describe('/api/auth/register', () => {
       const response = await tester.post(userData);
       expectErrorResponse(response, 500, 'Internal server error');
 
-      mockCreateSession.mockReset();
+      // Restore original function
+      prisma.session.create = originalSessionCreate;
     });
 
     test('should handle malformed JSON', async () => {

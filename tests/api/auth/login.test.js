@@ -4,9 +4,9 @@ import { createTestUser, expectAuthResponse, expectErrorResponse } from '../../h
 import { ApiTester } from '../../helpers/requestHelpers.js';
 import { testValidationScenarios, generateUserValidationTests, createTestDataSets } from '../../helpers/validationHelpers.js';
 
-// Mock the auth module at the top level
-jest.mock('../../../lib/auth.js', () => ({
-  ...jest.requireActual('../../../lib/auth.js'),
+// Mock the auth module at the top level using the path alias
+jest.mock('@/lib/auth', () => ({
+  ...jest.requireActual('@/lib/auth'),
   authenticateUser: jest.fn(),
   createSession: jest.fn(),
 }));
@@ -281,19 +281,25 @@ describe('/api/auth/login', () => {
     let authenticateUser, createSession;
 
     beforeEach(async () => {
-      // Get the mocked functions
-      const authModule = await import('../../../lib/auth.js');
+      // Get the mocked functions using the same path alias
+      const authModule = await import('@/lib/auth');
       authenticateUser = authModule.authenticateUser;
       createSession = authModule.createSession;
       
-      // Reset mocks before each test
+      // Reset mocks before each test and restore default implementations
       authenticateUser.mockReset();
       createSession.mockReset();
+      
+      // Set up default mocks (can be overridden in individual tests)
+      authenticateUser.mockResolvedValue(testUser);
+      createSession.mockResolvedValue({ id: 'test-session', token: 'test-token' });
     });
 
     test('should handle database connection errors', async () => {
-      // Mock authenticateUser to throw an error
-      authenticateUser.mockRejectedValue(new Error('Database connection failed'));
+      // Temporarily break the database connection by using invalid data
+      const { prisma } = await import('../../setup/setupTests.js');
+      const originalFindUnique = prisma.user.findUnique;
+      prisma.user.findUnique = jest.fn().mockRejectedValue(new Error('Database connection failed'));
 
       const loginData = {
         username: testUser.username,
@@ -302,12 +308,16 @@ describe('/api/auth/login', () => {
 
       const response = await tester.post(loginData);
       expectErrorResponse(response, 500, 'Internal server error');
+      
+      // Restore original function
+      prisma.user.findUnique = originalFindUnique;
     });
 
     test('should handle session creation errors', async () => {
-      // Mock functions for this test
-      authenticateUser.mockResolvedValue(testUser);
-      createSession.mockRejectedValue(new Error('Session creation failed'));
+      // Mock Prisma session creation to fail
+      const { prisma } = await import('../../setup/setupTests.js');
+      const originalSessionCreate = prisma.session.create;
+      prisma.session.create = jest.fn().mockRejectedValue(new Error('Session creation failed'));
 
       const loginData = {
         username: testUser.username,
@@ -316,6 +326,9 @@ describe('/api/auth/login', () => {
 
       const response = await tester.post(loginData);
       expectErrorResponse(response, 500, 'Internal server error');
+      
+      // Restore original function
+      prisma.session.create = originalSessionCreate;
     });
 
     test('should handle malformed JSON', async () => {
