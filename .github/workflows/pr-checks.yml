@@ -25,11 +25,23 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Setup test database
+      run: |
+        echo "Setting up test database for PR checks..."
+        export DATABASE_URL="file:./pr_test_${{ github.run_id }}.db"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        
+        # Generate Prisma client and setup schema using test schema
+        npx prisma generate --schema=prisma/schema.test.prisma
+        npx prisma db push --force-reset --schema=prisma/schema.test.prisma
+      env:
+        NODE_ENV: test
+
     - name: Run tests with coverage
       run: npm test -- --coverage --watchAll=false
       env:
         NODE_ENV: test
-        DATABASE_URL: file:./test.db
+        DATABASE_URL: file:./pr_test_${{ github.run_id }}.db
         NEXTAUTH_SECRET: test-secret-for-pr-checks
         NEXTAUTH_URL: http://localhost:3000
 

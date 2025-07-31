@@ -17,9 +17,9 @@ beforeAll(async () => {
     process.env.NODE_ENV = 'test';
   }
   
-  // Set test database URL if not provided
+  // Set test database URL if not provided (use SQLite for testing)
   if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/gym_pad_test';
+    process.env.DATABASE_URL = 'file:./test.db';
   }
   
   try {

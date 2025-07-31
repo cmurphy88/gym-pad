@@ -41,11 +41,27 @@ jobs:
       run: npm run lint
       continue-on-error: false
 
+    - name: Setup test database
+      run: |
+        echo "Setting up test database..."
+        # Create a test database URL for SQLite
+        export DATABASE_URL="file:./test_${{ github.run_id }}_${{ matrix.node-version }}.db"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        echo "Using database: $DATABASE_URL"
+        
+        # Generate Prisma client using the test schema
+        npx prisma generate --schema=prisma/schema.test.prisma
+        
+        # Run migrations to create the test database schema
+        npx prisma db push --force-reset --schema=prisma/schema.test.prisma
+      env:
+        NODE_ENV: test
+
     - name: Run unit tests
       run: npm test -- --coverage --watchAll=false --verbose
       env:
         NODE_ENV: test
-        DATABASE_URL: file:./test.db
+        DATABASE_URL: file:./test_${{ github.run_id }}_${{ matrix.node-version }}.db
         NEXTAUTH_SECRET: test-secret-for-github-actions
         NEXTAUTH_URL: http://localhost:3000
 
@@ -63,7 +79,7 @@ jobs:
         npm run test:workouts -- --watchAll=false
       env:
         NODE_ENV: test
-        DATABASE_URL: file:./test.db
+        DATABASE_URL: file:./test_${{ github.run_id }}_${{ matrix.node-version }}.db
         NEXTAUTH_SECRET: test-secret-for-github-actions
         NEXTAUTH_URL: http://localhost:3000
 
