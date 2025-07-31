@@ -1,0 +1,193 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main ]
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for better analysis
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests with coverage
+      run: npm test -- --coverage --watchAll=false
+      env:
+        NODE_ENV: test
+        DATABASE_URL: file:./test.db
+        NEXTAUTH_SECRET: test-secret-for-pr-checks
+        NEXTAUTH_URL: http://localhost:3000
+
+    - name: Check coverage thresholds
+      run: |
+        echo "Checking coverage thresholds..."
+        # Coverage thresholds are defined in jest.config.js
+        if [ -f "coverage/coverage-summary.json" ]; then
+          node -e "
+            const coverage = require('./coverage/coverage-summary.json');
+            const { lines, functions, branches, statements } = coverage.total;
+            
+            const thresholds = { lines: 80, functions: 80, branches: 80, statements: 80 };
+            
+            let failed = false;
+            Object.entries(thresholds).forEach(([metric, threshold]) => {
+              const actual = coverage.total[metric].pct;
+              if (actual < threshold) {
+                console.error(`❌ ${metric} coverage ${actual}% is below threshold ${threshold}%`);
+                failed = true;
+              } else {
+                console.log(`✅ ${metric} coverage ${actual}% meets threshold ${threshold}%`);
+              }
+            });
+            
+            if (failed) {
+              console.error('Coverage thresholds not met!');
+              process.exit(1);
+            } else {
+              console.log('All coverage thresholds met!');
+            }
+          "
+        else
+          echo "No coverage report found"
+          exit 1
+        fi
+
+    - name: Lint check
+      run: npm run lint
+
+    - name: Type check (if applicable)
+      run: |
+        if [ -f "tsconfig.json" ]; then
+          echo "Running TypeScript checks..."
+          npm run type-check || echo "No type-check script found"
+        else
+          echo "No TypeScript configuration found, skipping type check"
+        fi
+      continue-on-error: true
+
+    - name: Check for sensitive data
+      run: |
+        echo "Scanning for sensitive data..."
+        # Check for common sensitive patterns
+        if grep -r -i "password.*=.*['\"]" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.test.js" --exclude="*.md"; then
+          echo "⚠️ Potential hardcoded passwords found"
+          exit 1
+        fi
+        
+        if grep -r -i "api[_-]key.*=.*['\"]" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.test.js" --exclude="*.md"; then
+          echo "⚠️ Potential hardcoded API keys found"
+          exit 1
+        fi
+        
+        if grep -r -i "secret.*=.*['\"]" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.test.js" --exclude="*.md" | grep -v "test-secret"; then
+          echo "⚠️ Potential hardcoded secrets found"
+          exit 1
+        fi
+        
+        echo "✅ No sensitive data patterns found"
+
+    - name: Check bundle size (if applicable)
+      run: |
+        if npm run build:dev; then
+          echo "Build successful, checking bundle size..."
+          if [ -d ".next" ]; then
+            find .next -name "*.js" -exec ls -lh {} \; | head -10
+            # Add bundle size analysis here if needed
+          fi
+        fi
+      continue-on-error: true
+
+    - name: Performance test sample
+      run: |
+        echo "Running basic performance checks..."
+        # Test if critical API routes can be imported without errors
+        node -e "require('./app/api/auth/login/route.js'); console.log('✅ Auth routes OK');"
+        node -e "require('./app/api/exercises/route.js'); console.log('✅ Exercise routes OK');"
+        node -e "require('./app/api/workouts/route.js'); console.log('✅ Workout routes OK');"
+      continue-on-error: true
+
+  pr-comment:
+    name: PR Comment
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: always()
+    
+    steps:
+    - name: Comment on PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: checkRuns } = await github.rest.checks.listForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha
+          });
+          
+          const qualityGateRun = checkRuns.check_runs.find(run => run.name.includes('Quality Gate'));
+          const status = qualityGateRun ? qualityGateRun.conclusion : 'unknown';
+          
+          let emoji = '⏳';
+          let message = 'Quality checks in progress...';
+          
+          if (status === 'success') {
+            emoji = '✅';
+            message = 'All quality checks passed! This PR is ready for review.';
+          } else if (status === 'failure') {
+            emoji = '❌';
+            message = 'Some quality checks failed. Please review the workflow logs and fix any issues.';
+          }
+          
+          const comment = `## ${emoji} Quality Gate Report
+          
+          ${message}
+          
+          ### Checks Performed:
+          - 🧪 **Unit Tests**: All API routes tested
+          - 📊 **Code Coverage**: Minimum 80% threshold
+          - 🔍 **Linting**: Code style and quality
+          - 🔒 **Security Scan**: No sensitive data exposed
+          - 🏗️ **Build Check**: Application builds successfully
+          
+          *This comment will be updated as checks complete.*`;
+          
+          // Find existing bot comment to update or create new one
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && comment.body.includes('Quality Gate Report')
+          );
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: comment
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }

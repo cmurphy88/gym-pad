@@ -1,11 +1,11 @@
 @import 'tailwindcss';
 
 /* Prevent mobile zoom on input focus */
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
+input[type='text'],
+input[type='number'],
+input[type='email'],
+input[type='password'],
+input[type='date'],
 textarea,
 select {
   font-size: 16px !important;
@@ -13,11 +13,11 @@ select {
 
 /* Ensure consistent input styling on mobile */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
-  input[type="text"],
-  input[type="number"],
-  input[type="email"],
-  input[type="password"],
-  input[type="date"],
+  input[type='text'],
+  input[type='number'],
+  input[type='email'],
+  input[type='password'],
+  input[type='date'],
   textarea,
   select {
     font-size: 16px !important;
@@ -35,7 +35,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -187,12 +186,12 @@ button:focus-visible {
   position: relative;
 }
 
-.calendar-container .rdp-cell[data-has-workouts="true"] .rdp-button {
+.calendar-container .rdp-cell[data-has-workouts='true'] .rdp-button {
   background-color: rgba(147, 51, 234, 0.2);
   border: 1px solid rgba(147, 51, 234, 0.4);
 }
 
-.calendar-container .rdp-cell[data-has-workouts="true"] .rdp-button:hover {
+.calendar-container .rdp-cell[data-has-workouts='true'] .rdp-button:hover {
   background-color: rgba(147, 51, 234, 0.3);
   border-color: rgba(147, 51, 234, 0.6);
 }

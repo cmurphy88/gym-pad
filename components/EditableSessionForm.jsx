@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { PlusIcon, TrashIcon, SaveIcon, XIcon, ArrowLeftIcon } from 'lucide-react'
+import {
+  PlusIcon,
+  TrashIcon,
+  SaveIcon,
+  XIcon,
+  ArrowLeftIcon,
+} from 'lucide-react'
 import TemplateGuidance from './TemplateGuidance'
 
-const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDelete }) => {
+const EditableSessionForm = ({
+  session,
+  onSave,
+  onCancel,
+  onUnsavedChanges,
+  onDelete,
+}) => {
   const [workoutData, setWorkoutData] = useState({
     title: '',
     date: '',
     notes: '',
-    exercises: []
+    exercises: [],
   })
-  
+
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [templateGuidance, setTemplateGuidance] = useState(null)
@@ -20,15 +32,19 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
     if (session) {
       setWorkoutData({
         title: session.title || '',
-        date: session.date ? new Date(session.date).toISOString().split('T')[0] : '',
+        date: session.date
+          ? new Date(session.date).toISOString().split('T')[0]
+          : '',
         notes: session.notes || '',
-        exercises: session.exercises ? session.exercises.map(exercise => ({
-          id: exercise.id,
-          name: exercise.name || '',
-          sets: exercise.sets || [{ reps: '', weight: '' }],
-          notes: exercise.notes || '',
-          restSeconds: exercise.restSeconds || 60
-        })) : []
+        exercises: session.exercises
+          ? session.exercises.map((exercise) => ({
+              id: exercise.id,
+              name: exercise.name || '',
+              sets: exercise.sets || [{ reps: '', weight: '' }],
+              notes: exercise.notes || '',
+              restSeconds: exercise.restSeconds || 60,
+            }))
+          : [],
       })
     }
   }, [session])
@@ -38,28 +54,35 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
     const fetchTemplateGuidance = async () => {
       if (session?.templateId) {
         try {
-          const response = await fetch(`/api/templates/${session.templateId}/latest-data`, {
-            credentials: 'include'
-          })
+          const response = await fetch(
+            `/api/templates/${session.templateId}/latest-data`,
+            {
+              credentials: 'include',
+            }
+          )
           if (response.ok) {
             const templateData = await response.json()
-            
+
             // Create a map of exercise name to guidance data
             const guidanceMap = {}
-            templateData.templateExercises.forEach(templateExercise => {
+            templateData.templateExercises.forEach((templateExercise) => {
               guidanceMap[templateExercise.name.toLowerCase()] = {
                 targetRepRange: templateExercise.targetRepRange,
                 restSeconds: templateExercise.restSeconds,
                 notes: templateExercise.notes,
                 latestSets: templateExercise.latestSets,
                 lastPerformed: templateExercise.lastPerformed,
-                exerciseHistory: templateExercise.exerciseHistory
+                exerciseHistory: templateExercise.exerciseHistory,
               }
             })
-            
+
             setTemplateGuidance(guidanceMap)
           } else {
-            console.error('Failed to fetch template data:', response.status, response.statusText)
+            console.error(
+              'Failed to fetch template data:',
+              response.status,
+              response.statusText
+            )
           }
         } catch (error) {
           console.error('Error fetching template guidance:', error)
@@ -73,34 +96,41 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
   // Track unsaved changes
   useEffect(() => {
     if (!session) return
-    
-    const hasChanges = (
+
+    const hasChanges =
       workoutData.title !== (session.title || '') ||
-      workoutData.date !== (session.date ? new Date(session.date).toISOString().split('T')[0] : '') ||
+      workoutData.date !==
+        (session.date
+          ? new Date(session.date).toISOString().split('T')[0]
+          : '') ||
       workoutData.notes !== (session.notes || '') ||
-      JSON.stringify(workoutData.exercises) !== JSON.stringify(session.exercises ? session.exercises.map(exercise => ({
-        id: exercise.id,
-        name: exercise.name || '',
-        sets: exercise.sets || [{ reps: '', weight: '' }],
-        notes: exercise.notes || '',
-        restSeconds: exercise.restSeconds || 60
-      })) : [])
-    )
-    
+      JSON.stringify(workoutData.exercises) !==
+        JSON.stringify(
+          session.exercises
+            ? session.exercises.map((exercise) => ({
+                id: exercise.id,
+                name: exercise.name || '',
+                sets: exercise.sets || [{ reps: '', weight: '' }],
+                notes: exercise.notes || '',
+                restSeconds: exercise.restSeconds || 60,
+              }))
+            : []
+        )
+
     onUnsavedChanges(hasChanges)
   }, [workoutData, session, onUnsavedChanges])
 
   const handleWorkoutChange = (field, value) => {
-    setWorkoutData(prev => ({
+    setWorkoutData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }))
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: '',
       }))
     }
   }
@@ -111,76 +141,76 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
       name: '',
       sets: [{ reps: '', weight: '' }],
       notes: '',
-      restSeconds: 60
+      restSeconds: 60,
     }
-    
-    setWorkoutData(prev => ({
+
+    setWorkoutData((prev) => ({
       ...prev,
-      exercises: [...prev.exercises, newExercise]
+      exercises: [...prev.exercises, newExercise],
     }))
   }
 
   const removeExercise = (exerciseId) => {
-    setWorkoutData(prev => ({
+    setWorkoutData((prev) => ({
       ...prev,
-      exercises: prev.exercises.filter(ex => ex.id !== exerciseId)
+      exercises: prev.exercises.filter((ex) => ex.id !== exerciseId),
     }))
   }
 
   const updateExercise = (exerciseId, field, value) => {
-    setWorkoutData(prev => ({
+    setWorkoutData((prev) => ({
       ...prev,
-      exercises: prev.exercises.map(ex => 
+      exercises: prev.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, [field]: value } : ex
-      )
+      ),
     }))
   }
 
   const addSet = (exerciseId) => {
-    setWorkoutData(prev => ({
+    setWorkoutData((prev) => ({
       ...prev,
-      exercises: prev.exercises.map(ex => 
-        ex.id === exerciseId 
+      exercises: prev.exercises.map((ex) =>
+        ex.id === exerciseId
           ? { ...ex, sets: [...ex.sets, { reps: '', weight: '' }] }
           : ex
-      )
+      ),
     }))
   }
 
   const removeSet = (exerciseId, setIndex) => {
-    setWorkoutData(prev => ({
+    setWorkoutData((prev) => ({
       ...prev,
-      exercises: prev.exercises.map(ex => 
-        ex.id === exerciseId 
+      exercises: prev.exercises.map((ex) =>
+        ex.id === exerciseId
           ? { ...ex, sets: ex.sets.filter((_, index) => index !== setIndex) }
           : ex
-      )
+      ),
     }))
   }
 
   const updateSet = (exerciseId, setIndex, field, value) => {
-    setWorkoutData(prev => ({
+    setWorkoutData((prev) => ({
       ...prev,
-      exercises: prev.exercises.map(ex => 
-        ex.id === exerciseId 
+      exercises: prev.exercises.map((ex) =>
+        ex.id === exerciseId
           ? {
               ...ex,
-              sets: ex.sets.map((set, index) => 
+              sets: ex.sets.map((set, index) =>
                 index === setIndex ? { ...set, [field]: value } : set
-              )
+              ),
             }
           : ex
-      )
+      ),
     }))
   }
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!workoutData.title.trim()) {
       newErrors.title = 'Workout title is required'
     }
-    
+
     if (!workoutData.date) {
       newErrors.date = 'Date is required'
     }
@@ -194,14 +224,15 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
       if (!exercise.name.trim()) {
         newErrors[`exercise_${index}_name`] = 'Exercise name is required'
       }
-      
+
       if (exercise.sets.length === 0) {
         newErrors[`exercise_${index}_sets`] = 'At least one set is required'
       }
-      
+
       exercise.sets.forEach((set, setIndex) => {
         if (!set.reps || set.reps <= 0) {
-          newErrors[`exercise_${index}_set_${setIndex}_reps`] = 'Reps must be a positive number'
+          newErrors[`exercise_${index}_set_${setIndex}_reps`] =
+            'Reps must be a positive number'
         }
       })
     })
@@ -212,7 +243,7 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
@@ -226,14 +257,14 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
       notes: workoutData.notes.trim() || null,
       exercises: workoutData.exercises.map((exercise, index) => ({
         name: exercise.name.trim(),
-        sets: exercise.sets.map(set => ({
+        sets: exercise.sets.map((set) => ({
           reps: parseInt(set.reps),
-          weight: set.weight ? parseFloat(set.weight) : null
+          weight: set.weight ? parseFloat(set.weight) : null,
         })),
         notes: exercise.notes.trim() || null,
         restSeconds: exercise.restSeconds || null,
-        orderIndex: index
-      }))
+        orderIndex: index,
+      })),
     }
 
     try {
@@ -264,8 +295,10 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Workout Details */}
         <div className="bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Session Details</h2>
-          
+          <h2 className="text-xl font-semibold text-white mb-4">
+            Session Details
+          </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -283,7 +316,7 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                 <p className="text-red-400 text-sm mt-1">{errors.title}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Date *
@@ -343,7 +376,9 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                     <input
                       type="text"
                       value={exercise.name}
-                      onChange={(e) => updateExercise(exercise.id, 'name', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, 'name', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                       placeholder="Exercise name"
                       disabled={isSubmitting}
@@ -365,14 +400,19 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                 </div>
 
                 {/* Template Guidance */}
-                {templateGuidance && templateGuidance[exercise.name.toLowerCase()] && (
-                  <TemplateGuidance exercise={templateGuidance[exercise.name.toLowerCase()]} />
-                )}
+                {templateGuidance &&
+                  templateGuidance[exercise.name.toLowerCase()] && (
+                    <TemplateGuidance
+                      exercise={templateGuidance[exercise.name.toLowerCase()]}
+                    />
+                  )}
 
                 {/* Sets */}
                 <div className="mb-3">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-300">Sets</span>
+                    <span className="text-sm font-medium text-gray-300">
+                      Sets
+                    </span>
                     <button
                       type="button"
                       onClick={() => addSet(exercise.id)}
@@ -382,7 +422,7 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                       + Add Set
                     </button>
                   </div>
-                  
+
                   {errors[`exercise_${exerciseIndex}_sets`] && (
                     <p className="text-red-400 text-sm mb-2">
                       {errors[`exercise_${exerciseIndex}_sets`]}
@@ -392,12 +432,21 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                   <div className="space-y-2">
                     {exercise.sets.map((set, setIndex) => (
                       <div key={setIndex} className="flex items-center gap-2">
-                        <span className="text-sm text-gray-400 w-8">#{setIndex + 1}</span>
+                        <span className="text-sm text-gray-400 w-8">
+                          #{setIndex + 1}
+                        </span>
                         <div className="flex-1">
                           <input
                             type="number"
                             value={set.weight}
-                            onChange={(e) => updateSet(exercise.id, setIndex, 'weight', e.target.value)}
+                            onChange={(e) =>
+                              updateSet(
+                                exercise.id,
+                                setIndex,
+                                'weight',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                             placeholder="Weight (kg)"
                             step="0.5"
@@ -409,15 +458,28 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                           <input
                             type="number"
                             value={set.reps}
-                            onChange={(e) => updateSet(exercise.id, setIndex, 'reps', e.target.value)}
+                            onChange={(e) =>
+                              updateSet(
+                                exercise.id,
+                                setIndex,
+                                'reps',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                             placeholder="Reps"
                             min="1"
                             disabled={isSubmitting}
                           />
-                          {errors[`exercise_${exerciseIndex}_set_${setIndex}_reps`] && (
+                          {errors[
+                            `exercise_${exerciseIndex}_set_${setIndex}_reps`
+                          ] && (
                             <p className="text-red-400 text-xs mt-1">
-                              {errors[`exercise_${exerciseIndex}_set_${setIndex}_reps`]}
+                              {
+                                errors[
+                                  `exercise_${exerciseIndex}_set_${setIndex}_reps`
+                                ]
+                              }
                             </p>
                           )}
                         </div>
@@ -441,7 +503,9 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
                   <input
                     type="text"
                     value={exercise.notes}
-                    onChange={(e) => updateExercise(exercise.id, 'notes', e.target.value)}
+                    onChange={(e) =>
+                      updateExercise(exercise.id, 'notes', e.target.value)
+                    }
                     className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                     placeholder="Exercise notes (optional)"
                     disabled={isSubmitting}
@@ -453,7 +517,7 @@ const EditableSessionForm = ({ session, onSave, onCancel, onUnsavedChanges, onDe
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-4">
           <button
             type="button"
             onClick={onDelete}
@@ -491,7 +555,8 @@ EditableSessionForm.propTypes = {
   session: PropTypes.shape({
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
-    date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]).isRequired,
+    date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)])
+      .isRequired,
     notes: PropTypes.string,
     exercises: PropTypes.arrayOf(
       PropTypes.shape({

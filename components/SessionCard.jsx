@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
-import { CalendarIcon, ClockIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react'
+import { CalendarIcon, WeightIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react'
 import ExerciseItem from './ExerciseItem'
 
 /**
@@ -29,6 +29,23 @@ const SessionCard = ({ session, openHistoryModal }) => {
       day: 'numeric',
       year: 'numeric',
     })
+  }
+
+  // Calculate total load (weight * reps) for all sets in the session
+  const calculateTotalLoad = () => {
+    if (!session.exercises || session.exercises.length === 0) return 0
+    
+    return session.exercises.reduce((sessionTotal, exercise) => {
+      if (!Array.isArray(exercise.sets)) return sessionTotal
+      
+      const exerciseLoad = exercise.sets.reduce((exerciseTotal, set) => {
+        const weight = set.weight || 0
+        const reps = set.reps || 0
+        return exerciseTotal + (weight * reps)
+      }, 0)
+      
+      return sessionTotal + exerciseLoad
+    }, 0)
   }
 
   return (
@@ -72,8 +89,8 @@ const SessionCard = ({ session, openHistoryModal }) => {
           </div>
           <div className="px-5 py-3 bg-gray-900 border-t border-gray-700 flex justify-between items-center">
             <div className="flex items-center text-gray-400 text-sm">
-              <ClockIcon className="h-4 w-4 mr-1" />
-              <span>{session.duration || 45} min</span>
+              <WeightIcon className="h-4 w-4 mr-1" />
+              <span>{calculateTotalLoad()} kg total</span>
             </div>
             <button 
               onClick={handleViewDetails}
