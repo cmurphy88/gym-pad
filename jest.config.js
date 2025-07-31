@@ -22,13 +22,10 @@ const customJestConfig = {
     '<rootDir>/tests/**/*.spec.js'
   ],
   
-  // Module path mapping
-  moduleNameMapping: {
+  // Module path mapping (corrected property name)
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  
-  // ES modules support
-  preset: 'next/jest',
   
   // Coverage configuration
   collectCoverageFrom: [
@@ -61,13 +58,6 @@ const customJestConfig = {
   
   // Maximum concurrent workers
   maxWorkers: 4,
-  
-  // Global variables
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 };
 
 // Create and export the Jest configuration
