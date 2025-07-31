@@ -253,10 +253,24 @@ describe('/api/auth/login', () => {
   });
 
   describe('Error Handling', () => {
+    let originalAuthenticateUser;
+    let originalCreateSession;
+
+    beforeEach(() => {
+      // Store original functions
+      originalAuthenticateUser = auth.authenticateUser;
+      originalCreateSession = auth.createSession;
+    });
+
+    afterEach(() => {
+      // Restore original functions
+      auth.authenticateUser = originalAuthenticateUser;
+      auth.createSession = originalCreateSession;
+    });
+
     test('should handle database connection errors', async () => {
       // Mock authenticateUser to throw an error
-      const mockAuthenticateUser = jest.spyOn(auth, 'authenticateUser');
-      mockAuthenticateUser.mockRejectedValue(new Error('Database connection failed'));
+      auth.authenticateUser = jest.fn().mockRejectedValue(new Error('Database connection failed'));
 
       const loginData = {
         username: testUser.username,
@@ -265,14 +279,12 @@ describe('/api/auth/login', () => {
 
       const response = await tester.post(loginData);
       expectErrorResponse(response, 500, 'Internal server error');
-
-      mockAuthenticateUser.mockRestore();
     });
 
     test('should handle session creation errors', async () => {
       // Mock createSession to throw an error
-      const mockCreateSession = jest.spyOn(auth, 'createSession');
-      mockCreateSession.mockRejectedValue(new Error('Session creation failed'));
+      auth.authenticateUser = jest.fn().mockResolvedValue(testUser);
+      auth.createSession = jest.fn().mockRejectedValue(new Error('Session creation failed'));
 
       const loginData = {
         username: testUser.username,
@@ -281,8 +293,6 @@ describe('/api/auth/login', () => {
 
       const response = await tester.post(loginData);
       expectErrorResponse(response, 500, 'Internal server error');
-
-      mockCreateSession.mockRestore();
     });
 
     test('should handle malformed JSON', async () => {

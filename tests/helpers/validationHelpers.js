@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 /**
  * Test validation scenarios for API endpoints
  */
-export const testValidationScenarios = (tester, method, validData, validationTests) => {
+export const testValidationScenarios = (tester, method, validData, validationTests, options = {}) => {
   describe('Input Validation', () => {
     validationTests.forEach(({ field, values, expectedStatus = 400 }) => {
       values.forEach(({ value, description }) => {
@@ -16,7 +16,22 @@ export const testValidationScenarios = (tester, method, validData, validationTes
             testData[field] = value;
           }
           
-          const response = await tester[method](testData);
+          // Call the appropriate method on the tester
+          let response;
+          if (method === 'post') {
+            response = await tester.post(testData, options);
+          } else if (method === 'get') {
+            response = await tester.get({ ...options, searchParams: testData });
+          } else if (method === 'put') {
+            response = await tester.put(testData, options);
+          } else if (method === 'patch') {
+            response = await tester.patch(testData, options);
+          } else if (method === 'delete') {
+            response = await tester.delete({ ...options, searchParams: testData });
+          } else {
+            throw new Error(`Unsupported HTTP method: ${method}`);
+          }
+          
           expect(response.status).toBe(expectedStatus);
           expect(response.data).toHaveProperty('error');
         });
