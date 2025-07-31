@@ -44,25 +44,56 @@ jobs:
     - name: Setup test database
       run: |
         echo "Setting up test database..."
-        # Create a test database URL for SQLite
-        export DATABASE_URL="file:./test_${{ github.run_id }}_${{ matrix.node-version }}.db"
-        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
-        echo "Using database: $DATABASE_URL"
         
-        # Generate Prisma client with default schema first
+        # Set up DATABASE_URL for this specific test run
+        TEST_DB_PATH="./test_${{ github.run_id }}_${{ matrix.node-version }}.db"
+        echo "DATABASE_URL=file:${TEST_DB_PATH}" >> $GITHUB_ENV
+        echo "Using database: file:${TEST_DB_PATH}"
+        
+        # Generate Prisma client with default schema
         npx prisma generate
         
-        # Run database schema setup using the test schema but keep default client
-        npx prisma db push --force-reset --schema=prisma/schema.test.prisma
+        # Create the database schema using the test schema (using db push for SQLite)
+        DATABASE_URL="file:${TEST_DB_PATH}" npx prisma db push --force-reset --schema=prisma/schema.test.prisma
         
-        # Verify database connection
-        node -e "
+        # Verify the database file was created (check both locations)
+        if [ -f "${TEST_DB_PATH}" ]; then
+          echo "✅ Database file created successfully: ${TEST_DB_PATH}"
+          ls -la "${TEST_DB_PATH}"
+        elif [ -f "prisma/${TEST_DB_PATH##*/}" ]; then
+          echo "✅ Database file created in prisma directory: prisma/${TEST_DB_PATH##*/}"
+          ls -la "prisma/${TEST_DB_PATH##*/}"
+        else
+          echo "❌ Database file not found in expected locations"
+          echo "Searching for database files..."
+          find . -name "*test_*" -type f 2>/dev/null || true
+          exit 1
+        fi
+        
+        # Verify database connection works
+        DATABASE_URL="file:${TEST_DB_PATH}" node -e "
           const { PrismaClient } = require('@prisma/client');
           const prisma = new PrismaClient();
           prisma.\$connect()
-            .then(() => { console.log('✅ Database connection successful'); return prisma.\$disconnect(); })
-            .catch((e) => { console.error('❌ Database connection failed:', e.message); process.exit(1); });
+            .then(() => { 
+              console.log('✅ Database connection successful'); 
+              return prisma.\$disconnect(); 
+            })
+            .catch((e) => { 
+              console.error('❌ Database connection failed:', e.message); 
+              process.exit(1); 
+            });
         "
+      env:
+        NODE_ENV: test
+
+    - name: Debug environment variables
+      run: |
+        echo "🔍 Environment variables:"
+        echo "NODE_ENV: $NODE_ENV"
+        echo "DATABASE_URL: $DATABASE_URL"
+        echo "Working directory: $(pwd)"
+        echo "Database file exists: $([ -f './test_${{ github.run_id }}_${{ matrix.node-version }}.db' ] && echo 'YES' || echo 'NO')"
       env:
         NODE_ENV: test
 
@@ -70,7 +101,6 @@ jobs:
       run: npm test -- --coverage --watchAll=false --verbose
       env:
         NODE_ENV: test
-        DATABASE_URL: file:./test_${{ github.run_id }}_${{ matrix.node-version }}.db
         NEXTAUTH_SECRET: test-secret-for-github-actions
         NEXTAUTH_URL: http://localhost:3000
 
@@ -88,7 +118,6 @@ jobs:
         npm run test:workouts -- --watchAll=false
       env:
         NODE_ENV: test
-        DATABASE_URL: file:./test_${{ github.run_id }}_${{ matrix.node-version }}.db
         NEXTAUTH_SECRET: test-secret-for-github-actions
         NEXTAUTH_URL: http://localhost:3000
 
