@@ -45,6 +45,15 @@ export async function POST(request) {
     return response;
   } catch (error) {
     console.error('Login error:', error);
+    
+    // Handle database connection errors specifically
+    if (error.message === 'Database connection failed') {
+      return NextResponse.json(
+        { error: 'Database temporarily unavailable. Please try again later.' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

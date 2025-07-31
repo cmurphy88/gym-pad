@@ -49,11 +49,20 @@ jobs:
         echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
         echo "Using database: $DATABASE_URL"
         
-        # Generate Prisma client using the test schema
-        npx prisma generate --schema=prisma/schema.test.prisma
+        # Generate Prisma client with default schema first
+        npx prisma generate
         
-        # Run migrations to create the test database schema
+        # Run database schema setup using the test schema but keep default client
         npx prisma db push --force-reset --schema=prisma/schema.test.prisma
+        
+        # Verify database connection
+        node -e "
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          prisma.\$connect()
+            .then(() => { console.log('✅ Database connection successful'); return prisma.\$disconnect(); })
+            .catch((e) => { console.error('❌ Database connection failed:', e.message); process.exit(1); });
+        "
       env:
         NODE_ENV: test
 
