@@ -1,8 +1,7 @@
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
-    "username" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -10,20 +9,9 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
-CREATE TABLE "sessions" (
-    "id" TEXT NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "token" TEXT NOT NULL,
-    "expires_at" TIMESTAMP(3) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "sessions_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "workouts" (
     "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
+    "user_id" INTEGER,
     "template_id" INTEGER,
     "title" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
@@ -80,7 +68,6 @@ CREATE TABLE "template_exercises" (
     "exercise_name" TEXT NOT NULL,
     "default_sets" INTEGER,
     "default_reps" INTEGER,
-    "target_rep_range" TEXT,
     "default_weight" DOUBLE PRECISION,
     "order_index" INTEGER NOT NULL,
     "notes" TEXT,
@@ -102,37 +89,8 @@ CREATE TABLE "workout_exercise_swaps" (
     CONSTRAINT "workout_exercise_swaps_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "weight_entries" (
-    "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "weight" DOUBLE PRECISION NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "weight_entries_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "weight_goals" (
-    "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "target_weight" DOUBLE PRECISION NOT NULL,
-    "goal_type" TEXT NOT NULL,
-    "target_date" TIMESTAMP(3),
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "weight_goals_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
-CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
-
--- CreateIndex
-CREATE UNIQUE INDEX "sessions_token_key" ON "sessions"("token");
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "exercise_templates_name_key" ON "exercise_templates"("name");
@@ -141,10 +99,7 @@ CREATE UNIQUE INDEX "exercise_templates_name_key" ON "exercise_templates"("name"
 CREATE UNIQUE INDEX "session_templates_name_key" ON "session_templates"("name");
 
 -- AddForeignKey
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "workouts" ADD CONSTRAINT "workouts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "workouts" ADD CONSTRAINT "workouts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "exercises" ADD CONSTRAINT "exercises_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "workouts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -154,9 +109,3 @@ ALTER TABLE "template_exercises" ADD CONSTRAINT "template_exercises_template_id_
 
 -- AddForeignKey
 ALTER TABLE "workout_exercise_swaps" ADD CONSTRAINT "workout_exercise_swaps_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "workouts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "weight_entries" ADD CONSTRAINT "weight_entries_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "weight_goals" ADD CONSTRAINT "weight_goals_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

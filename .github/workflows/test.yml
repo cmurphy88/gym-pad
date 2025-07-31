@@ -60,23 +60,24 @@ jobs:
       run: |
         echo "Setting up test database..."
         
-        # Set up DATABASE_URL for PostgreSQL test database
-        TEST_DB_NAME="testdb_${{ github.run_id }}_${{ matrix.node-version }}"
-        DATABASE_URL="postgresql://postgres:postgres@localhost:5432/${TEST_DB_NAME}"
-        echo "DATABASE_URL=${DATABASE_URL}" >> $GITHUB_ENV
-        echo "Using database: ${DATABASE_URL}"
+        # Set up COMPLETELY ISOLATED test database (NEVER touches production)
+        TEST_DB_NAME="ci_test_isolated_${{ github.run_id }}_${{ matrix.node-version }}"
+        TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/${TEST_DB_NAME}"
+        echo "DATABASE_URL=${TEST_DATABASE_URL}" >> $GITHUB_ENV
+        echo "✅ CI ISOLATED DATABASE: ${TEST_DATABASE_URL}"
+        echo "⚠️  This database is COMPLETELY separate from production"
         
-        # Create test database
+        # Create ISOLATED test database
         PGPASSWORD=postgres createdb -h localhost -U postgres "${TEST_DB_NAME}"
         
         # Generate Prisma client with default schema
         npx prisma generate
         
-        # Run migrations to set up the database schema
-        DATABASE_URL="${DATABASE_URL}" npx prisma migrate deploy
+        # Run migrations ONLY on the isolated test database
+        DATABASE_URL="${TEST_DATABASE_URL}" npx prisma migrate deploy
         
-        # Verify database connection works
-        DATABASE_URL="${DATABASE_URL}" node -e "
+        # Verify ISOLATED database connection works
+        DATABASE_URL="${TEST_DATABASE_URL}" node -e "
           const { PrismaClient } = require('@prisma/client');
           const prisma = new PrismaClient();
           prisma.\$connect()
