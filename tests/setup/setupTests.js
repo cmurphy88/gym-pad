@@ -17,9 +17,13 @@ beforeAll(async () => {
     process.env.NODE_ENV = 'test';
   }
   
-  // Set test database URL if not provided (use SQLite for testing)
+  // Set test database URL if not provided
   if (!process.env.DATABASE_URL) {
+    // Default to SQLite for local development if no DATABASE_URL is set
     process.env.DATABASE_URL = 'file:./test.db';
+    console.log('Using default SQLite database for testing');
+  } else {
+    console.log('Using configured database:', process.env.DATABASE_URL.replace(/\/\/([^:]+):([^@]+)@/, '//$1:*****@'));
   }
   
   try {

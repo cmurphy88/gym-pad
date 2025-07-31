@@ -14,6 +14,21 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     strategy:
       matrix:
         node-version: [18, 20]
@@ -45,33 +60,23 @@ jobs:
       run: |
         echo "Setting up test database..."
         
-        # Set up DATABASE_URL for this specific test run
-        TEST_DB_PATH="./test_${{ github.run_id }}_${{ matrix.node-version }}.db"
-        echo "DATABASE_URL=file:${TEST_DB_PATH}" >> $GITHUB_ENV
-        echo "Using database: file:${TEST_DB_PATH}"
+        # Set up DATABASE_URL for PostgreSQL test database
+        TEST_DB_NAME="testdb_${{ github.run_id }}_${{ matrix.node-version }}"
+        DATABASE_URL="postgresql://postgres:postgres@localhost:5432/${TEST_DB_NAME}"
+        echo "DATABASE_URL=${DATABASE_URL}" >> $GITHUB_ENV
+        echo "Using database: ${DATABASE_URL}"
+        
+        # Create test database
+        PGPASSWORD=postgres createdb -h localhost -U postgres "${TEST_DB_NAME}"
         
         # Generate Prisma client with default schema
         npx prisma generate
         
-        # Create the database schema using the test schema (using db push for SQLite)
-        DATABASE_URL="file:${TEST_DB_PATH}" npx prisma db push --force-reset --schema=prisma/schema.test.prisma
-        
-        # Verify the database file was created (check both locations)
-        if [ -f "${TEST_DB_PATH}" ]; then
-          echo "✅ Database file created successfully: ${TEST_DB_PATH}"
-          ls -la "${TEST_DB_PATH}"
-        elif [ -f "prisma/${TEST_DB_PATH##*/}" ]; then
-          echo "✅ Database file created in prisma directory: prisma/${TEST_DB_PATH##*/}"
-          ls -la "prisma/${TEST_DB_PATH##*/}"
-        else
-          echo "❌ Database file not found in expected locations"
-          echo "Searching for database files..."
-          find . -name "*test_*" -type f 2>/dev/null || true
-          exit 1
-        fi
+        # Run migrations to set up the database schema
+        DATABASE_URL="${DATABASE_URL}" npx prisma migrate deploy
         
         # Verify database connection works
-        DATABASE_URL="file:${TEST_DB_PATH}" node -e "
+        DATABASE_URL="${DATABASE_URL}" node -e "
           const { PrismaClient } = require('@prisma/client');
           const prisma = new PrismaClient();
           prisma.\$connect()
@@ -93,7 +98,8 @@ jobs:
         echo "NODE_ENV: $NODE_ENV"
         echo "DATABASE_URL: $DATABASE_URL"
         echo "Working directory: $(pwd)"
-        echo "Database file exists: $([ -f './test_${{ github.run_id }}_${{ matrix.node-version }}.db' ] && echo 'YES' || echo 'NO')"
+        echo "PostgreSQL service status:"
+        pg_isready -h localhost -p 5432 -U postgres || echo "PostgreSQL not ready"
       env:
         NODE_ENV: test
 
