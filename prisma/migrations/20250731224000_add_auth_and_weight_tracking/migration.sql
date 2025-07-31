@@ -2,12 +2,30 @@
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "username" TEXT;
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "password" TEXT;
 
--- Make username unique if it exists
+-- Remove the email column completely (you never wanted it)
 DO $$
 BEGIN
+    -- First, drop the unique constraint on email if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'users_email_key') THEN
+        ALTER TABLE "users" DROP CONSTRAINT "users_email_key";
+    END IF;
+    
+    -- Drop the email column if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'email') THEN
+        ALTER TABLE "users" DROP COLUMN "email";
+    END IF;
+    
+    -- Make username and password NOT NULL and add unique constraint on username
     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'username') THEN
-        -- Drop email constraint and add username constraint
-        ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "users_email_key";
+        -- Set default values for any existing NULL usernames (if any exist)
+        UPDATE "users" SET "username" = 'user_' || id WHERE "username" IS NULL;
+        UPDATE "users" SET "password" = 'TEMP_PASSWORD_CHANGE_ME' WHERE "password" IS NULL;
+        
+        -- Now make them NOT NULL
+        ALTER TABLE "users" ALTER COLUMN "username" SET NOT NULL;
+        ALTER TABLE "users" ALTER COLUMN "password" SET NOT NULL;
+        
+        -- Add unique constraint
         CREATE UNIQUE INDEX IF NOT EXISTS "users_username_key" ON "users"("username");
     END IF;
 END $$;
