@@ -3,7 +3,13 @@ import { POST } from '../../../app/api/auth/login/route.js';
 import { createTestUser, expectAuthResponse, expectErrorResponse } from '../../helpers/authHelpers.js';
 import { ApiTester } from '../../helpers/requestHelpers.js';
 import { testValidationScenarios, generateUserValidationTests, createTestDataSets } from '../../helpers/validationHelpers.js';
-import * as auth from '../../../lib/auth.js';
+
+// Mock the auth module at the top level
+jest.mock('../../../lib/auth.js', () => ({
+  ...jest.requireActual('../../../lib/auth.js'),
+  authenticateUser: jest.fn(),
+  createSession: jest.fn(),
+}));
 
 // Mock Next.js
 jest.mock('next/server', () => ({
@@ -161,7 +167,7 @@ describe('/api/auth/login', () => {
       password: 'password123',
     };
 
-    testValidationScenarios(tester, 'post', validLoginData, [
+    const validationTests = [
       {
         field: 'username',
         values: [
@@ -180,7 +186,25 @@ describe('/api/auth/login', () => {
           { value: '   ', description: 'whitespace-only password' },
         ],
       },
-    ]);
+    ];
+
+    validationTests.forEach(({ field, values, expectedStatus = 400 }) => {
+      values.forEach(({ value, description }) => {
+        test(`should reject ${description} for ${field}`, async () => {
+          const testData = { ...validLoginData };
+          
+          if (value === undefined) {
+            delete testData[field];
+          } else {
+            testData[field] = value;
+          }
+          
+          const response = await tester.post(testData);
+          expect(response.status).toBe(expectedStatus);
+          expect(response.data).toHaveProperty('error');
+        });
+      });
+    });
   });
 
   describe('Security', () => {
@@ -253,24 +277,23 @@ describe('/api/auth/login', () => {
   });
 
   describe('Error Handling', () => {
-    let originalAuthenticateUser;
-    let originalCreateSession;
+    // Import the mocked functions
+    let authenticateUser, createSession;
 
-    beforeEach(() => {
-      // Store original functions
-      originalAuthenticateUser = auth.authenticateUser;
-      originalCreateSession = auth.createSession;
-    });
-
-    afterEach(() => {
-      // Restore original functions
-      auth.authenticateUser = originalAuthenticateUser;
-      auth.createSession = originalCreateSession;
+    beforeEach(async () => {
+      // Get the mocked functions
+      const authModule = await import('../../../lib/auth.js');
+      authenticateUser = authModule.authenticateUser;
+      createSession = authModule.createSession;
+      
+      // Reset mocks before each test
+      authenticateUser.mockReset();
+      createSession.mockReset();
     });
 
     test('should handle database connection errors', async () => {
       // Mock authenticateUser to throw an error
-      auth.authenticateUser = jest.fn().mockRejectedValue(new Error('Database connection failed'));
+      authenticateUser.mockRejectedValue(new Error('Database connection failed'));
 
       const loginData = {
         username: testUser.username,
@@ -282,9 +305,9 @@ describe('/api/auth/login', () => {
     });
 
     test('should handle session creation errors', async () => {
-      // Mock createSession to throw an error
-      auth.authenticateUser = jest.fn().mockResolvedValue(testUser);
-      auth.createSession = jest.fn().mockRejectedValue(new Error('Session creation failed'));
+      // Mock functions for this test
+      authenticateUser.mockResolvedValue(testUser);
+      createSession.mockRejectedValue(new Error('Session creation failed'));
 
       const loginData = {
         username: testUser.username,

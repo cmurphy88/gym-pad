@@ -2,7 +2,12 @@ import { describe, test, beforeEach, expect, jest } from '@jest/globals';
 import { GET } from '../../../app/api/auth/me/route.js';
 import { createAuthenticatedUser, expectErrorResponse } from '../../helpers/authHelpers.js';
 import { ApiTester, createMockRequest } from '../../helpers/requestHelpers.js';
-import * as middleware from '../../../lib/middleware.js';
+
+// Mock the middleware module at the top level
+jest.mock('../../../lib/middleware.js', () => ({
+  ...jest.requireActual('../../../lib/middleware.js'),
+  getOptionalAuth: jest.fn(),
+}));
 
 // Mock Next.js
 jest.mock('next/server', () => ({
@@ -177,32 +182,37 @@ describe('/api/auth/me', () => {
   });
 
   describe('Error Handling', () => {
+    let getOptionalAuth;
+
+    beforeEach(async () => {
+      // Get the mocked function
+      const middlewareModule = await import('../../../lib/middleware.js');
+      getOptionalAuth = middlewareModule.getOptionalAuth;
+      
+      // Reset mock before each test
+      getOptionalAuth.mockReset();
+    });
+
     test('should handle database connection errors', async () => {
       // Mock getOptionalAuth to throw an error
-      const mockGetOptionalAuth = jest.spyOn(middleware, 'getOptionalAuth');
-      mockGetOptionalAuth.mockRejectedValue(new Error('Database connection failed'));
+      getOptionalAuth.mockRejectedValue(new Error('Database connection failed'));
 
       const response = await tester.get({ 
         cookies: { 'session-token': authenticatedUser.token } 
       });
 
       expectErrorResponse(response, 500, 'Internal server error');
-
-      mockGetOptionalAuth.mockRestore();
     });
 
     test('should handle session validation errors', async () => {
       // Mock getOptionalAuth to return null (invalid session)
-      const mockGetOptionalAuth = jest.spyOn(middleware, 'getOptionalAuth');
-      mockGetOptionalAuth.mockResolvedValue(null);
+      getOptionalAuth.mockResolvedValue(null);
 
       const response = await tester.get({ 
         cookies: { 'session-token': authenticatedUser.token } 
       });
 
       expectErrorResponse(response, 401, 'Not authenticated');
-
-      mockGetOptionalAuth.mockRestore();
     });
 
     test('should handle corrupted session data', async () => {

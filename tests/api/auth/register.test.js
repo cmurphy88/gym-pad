@@ -2,8 +2,14 @@ import { describe, test, beforeEach, expect, jest } from '@jest/globals';
 import { POST } from '../../../app/api/auth/register/route.js';
 import { createTestUser, expectAuthResponse, expectErrorResponse } from '../../helpers/authHelpers.js';
 import { ApiTester } from '../../helpers/requestHelpers.js';
-import { testValidationScenarios, generateUserValidationTests, createTestDataSets } from '../../helpers/validationHelpers.js';
-import * as auth from '../../../lib/auth.js';
+import { generateUserValidationTests, createTestDataSets } from '../../helpers/validationHelpers.js';
+
+// Mock the auth module at the top level
+jest.mock('../../../lib/auth.js', () => ({
+  ...jest.requireActual('../../../lib/auth.js'),
+  hashPassword: jest.fn(),
+  createSession: jest.fn(),
+}));
 
 // Mock Next.js
 jest.mock('next/server', () => ({
@@ -192,7 +198,25 @@ describe('/api/auth/register', () => {
       name: 'Test User',
     };
 
-    testValidationScenarios(tester, 'post', validUserData, generateUserValidationTests());
+    const validationTests = generateUserValidationTests();
+    
+    validationTests.forEach(({ field, values, expectedStatus = 400 }) => {
+      values.forEach(({ value, description }) => {
+        test(`should reject ${description} for ${field}`, async () => {
+          const testData = { ...validUserData };
+          
+          if (value === undefined) {
+            delete testData[field];
+          } else {
+            testData[field] = value;
+          }
+          
+          const response = await tester.post(testData);
+          expect(response.status).toBe(expectedStatus);
+          expect(response.data).toHaveProperty('error');
+        });
+      });
+    });
   });
 
   describe('Duplicate Username Handling', () => {
@@ -328,8 +352,11 @@ describe('/api/auth/register', () => {
     });
 
     test('should handle password hashing errors', async () => {
+      // Get the mocked function
+      const authModule = await import('../../../lib/auth.js');
+      const mockHashPassword = authModule.hashPassword;
+      
       // Mock hashPassword to throw an error
-      const mockHashPassword = jest.spyOn(auth, 'hashPassword');
       mockHashPassword.mockRejectedValue(new Error('Hashing failed'));
 
       const userData = {
@@ -341,12 +368,15 @@ describe('/api/auth/register', () => {
       const response = await tester.post(userData);
       expectErrorResponse(response, 500, 'Internal server error');
 
-      mockHashPassword.mockRestore();
+      mockHashPassword.mockReset();
     });
 
     test('should handle session creation errors', async () => {
+      // Get the mocked function
+      const authModule = await import('../../../lib/auth.js');
+      const mockCreateSession = authModule.createSession;
+      
       // Mock createSession to throw an error
-      const mockCreateSession = jest.spyOn(auth, 'createSession');
       mockCreateSession.mockRejectedValue(new Error('Session creation failed'));
 
       const userData = {
@@ -358,7 +388,7 @@ describe('/api/auth/register', () => {
       const response = await tester.post(userData);
       expectErrorResponse(response, 500, 'Internal server error');
 
-      mockCreateSession.mockRestore();
+      mockCreateSession.mockReset();
     });
 
     test('should handle malformed JSON', async () => {
