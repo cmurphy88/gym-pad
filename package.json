@@ -11,16 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "node lib/seed-templates.js",
-    "postinstall": "prisma generate",
-    "test": "cross-env NODE_ENV=test jest",
-    "test:watch": "cross-env NODE_ENV=test jest --watch",
-    "test:coverage": "cross-env NODE_ENV=test jest --coverage",
-    "test:auth": "cross-env NODE_ENV=test jest tests/api/auth",
-    "test:exercises": "cross-env NODE_ENV=test jest tests/api/exercises",
-    "test:templates": "cross-env NODE_ENV=test jest tests/api/templates",
-    "test:weight": "cross-env NODE_ENV=test jest tests/api/weight",
-    "test:workouts": "cross-env NODE_ENV=test jest tests/api/workouts",
-    "test:integration": "cross-env NODE_ENV=test jest tests/integration"
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -49,14 +40,5 @@
     "recharts": "^3.1.0",
     "swr": "^2.3.4",
     "tailwindcss": "^4.1.11"
-  },
-  "devDependencies": {
-    "@jest/globals": "^30.0.5",
-    "@types/jest": "^30.0.0",
-    "@types/supertest": "^6.0.3",
-    "cross-env": "^10.0.0",
-    "jest": "^30.0.5",
-    "jest-environment-node": "^30.0.5",
-    "supertest": "^7.1.4"
   }
 }
