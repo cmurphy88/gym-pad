@@ -15,6 +15,7 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 ## Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 with App Router
 - **Language**: JavaScript (ES modules)
 - **UI**: React 19 with modern hooks
@@ -24,41 +25,59 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 - **Data Fetching**: SWR for real-time data sync and caching
 
 ### Backend
+
 - **API**: Next.js API routes with full CRUD operations
 - **Database**: SQLite with Prisma ORM (production-ready for PostgreSQL)
 - **Validation**: Custom validation functions with PropTypes
 - **Data**: Persistent storage with relationships
 
 ### Deployment
+
 - **Platform**: Optimized for Vercel deployment
 - **Database**: Easy migration to Vercel Postgres for production
 
 ## Getting Started
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Setup database:
+
    ```bash
    npx prisma generate
    npx prisma db push
    ```
 
 3. Seed database (optional):
+
    ```bash
    node lib/seed.js
    ```
 
 4. Start the development server:
+
    ```bash
    npm run dev
    ```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## API Endpoints
+## Documentation
+
+📚 **[Complete API Documentation](docs/API.md)** - Comprehensive API reference with all endpoints, request/response formats, and examples
+
+🏗️ **[Architecture Documentation](docs/ARCHITECTURE.md)** - System architecture, component structure, and data flow diagrams
+
+🗄️ **[Database Schema](docs/DATABASE.md)** - Database design, entity relationships, and schema diagrams
+
+🚀 **[Deployment Guide](docs/DEPLOYMENT.md)** - Step-by-step deployment instructions for various platforms
+
+🤝 **[Contributing Guide](docs/CONTRIBUTING.md)** - Guidelines for contributors, development setup, and coding standards
+
+## Quick API Reference
 
 - `GET /api/workouts` - Get all workouts
 - `POST /api/workouts` - Create new workout
@@ -67,20 +86,39 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 - `DELETE /api/workouts/[id]` - Delete workout
 - `GET /api/exercises/history/[name]` - Get exercise history
 
+*See [API Documentation](docs/API.md) for complete endpoint details.*
+
 ## Deployment
 
-### Vercel (Recommended)
+*See [Deployment Guide](docs/DEPLOYMENT.md) for complete deployment instructions.*
+
+### Quick Deploy to Vercel
+
 1. Connect your GitHub repository to Vercel
 2. Add environment variables for production database
 3. Deploy automatically on push to main branch
 
 ### Environment Variables
+
 ```env
 # Development (SQLite)
 DATABASE_URL="file:./dev.db"
 
 # Production (PostgreSQL)
 DATABASE_URL="postgresql://user:password@host:port/database"
+```
+
+## Project Structure
+
+```text
+gym-pad/
+├── app/                 # Next.js App Router (pages & API routes)
+├── components/          # Reusable React components
+├── contexts/           # React context providers
+├── lib/                # Utility functions and services
+├── prisma/             # Database schema and migrations
+├── docs/               # 📖 Project documentation
+└── tests/              # Test files and coverage
 ```
 
 ## Migration from Vite
