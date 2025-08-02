@@ -6,7 +6,10 @@ import {
   ClockIcon,
   TargetIcon,
   HistoryIcon,
+  TrendingUpIcon,
+  AlertCircleIcon,
 } from 'lucide-react'
+import { analyzeRPEData } from '@/lib/migrate-sets'
 
 const TemplateGuidance = ({ exercise }) => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -60,6 +63,9 @@ const TemplateGuidance = ({ exercise }) => {
 
   const latestPerformance = formatLatestPerformance(exercise.latestSets)
   const exerciseHistory = formatExerciseHistory(exercise.exerciseHistory)
+  
+  // Analyze RPE data for auto-regulation
+  const rpeAnalysis = analyzeRPEData(exercise.exerciseHistory, exercise.targetRepRange)
 
   return (
     <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg mb-3">
@@ -127,6 +133,71 @@ const TemplateGuidance = ({ exercise }) => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Auto-Regulation Insights */}
+          {rpeAnalysis.hasRPEData && (
+            <div className="text-sm pt-2 border-t border-blue-700/20">
+              <div className="flex items-center space-x-2 mb-2">
+                <TrendingUpIcon className="h-3 w-3 text-orange-400 flex-shrink-0" />
+                <span className="text-gray-300 font-medium">Auto-Regulation</span>
+              </div>
+              
+              <div className="space-y-1 ml-5">
+                {/* Last Session RPE */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-400">Last RPE:</span>
+                  <span className={`font-medium ${
+                    rpeAnalysis.lastSessionRPE <= 7 ? 'text-green-400' :
+                    rpeAnalysis.lastSessionRPE <= 8.5 ? 'text-yellow-400' :
+                    'text-red-400'
+                  }`}>
+                    {rpeAnalysis.lastSessionRPE}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    ({rpeAnalysis.analysis.fatigue} fatigue)
+                  </span>
+                </div>
+
+                {/* Recommendation */}
+                {rpeAnalysis.recommendation && (
+                  <div className="bg-gray-800/50 rounded p-2 mt-2">
+                    <div className="flex items-start space-x-2">
+                      <AlertCircleIcon className="h-3 w-3 text-orange-400 flex-shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <div className="text-xs text-orange-200 font-medium">
+                          Recommendation:
+                        </div>
+                        <div className="text-xs text-gray-300">
+                          {rpeAnalysis.recommendation.message}
+                        </div>
+                        {(rpeAnalysis.recommendation.weightChange !== 0 || rpeAnalysis.recommendation.repChange !== 0) && (
+                          <div className="text-xs space-y-0.5">
+                            {rpeAnalysis.recommendation.weightChange !== 0 && (
+                              <div className="text-blue-300">
+                                Weight: {rpeAnalysis.recommendation.weightChange > 0 ? '+' : ''}
+                                {rpeAnalysis.recommendation.weightChange}kg
+                              </div>
+                            )}
+                            {rpeAnalysis.recommendation.repChange !== 0 && (
+                              <div className="text-purple-300">
+                                Reps: {rpeAnalysis.recommendation.repChange > 0 ? '+' : ''}
+                                {rpeAnalysis.recommendation.repChange}
+                              </div>
+                            )}
+                            {rpeAnalysis.recommendation.targetRPE && (
+                              <div className="text-yellow-300">
+                                Target RPE: {rpeAnalysis.recommendation.targetRPE}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

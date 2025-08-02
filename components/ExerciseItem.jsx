@@ -18,23 +18,31 @@ const ExerciseItem = ({ exercise, onClick }) => {
     const totalSets = sets.length
     const weights = sets.map((set) => set.weight || 0)
     const reps = sets.map((set) => set.reps || 0)
+    const rpes = sets.map((set) => set.rpe).filter(Boolean)
 
     // Check if all weights are the same
     const sameWeight = weights.every((w) => w === weights[0])
     // Check if all reps are the same
     const sameReps = reps.every((r) => r === reps[0])
 
+    // Calculate average RPE if available
+    const avgRPE = rpes.length > 0 ? 
+      (rpes.reduce((sum, rpe) => sum + rpe, 0) / rpes.length).toFixed(1) : null
+
     if (sameWeight && sameReps) {
-      // All sets identical: "4 sets × 8 reps · 185 kg"
+      // All sets identical: "4 sets × 8 reps · 185 kg · RPE 7.5"
       const weightDisplay = weights[0] > 0 ? ` · ${weights[0]} kg` : ''
-      return `${totalSets} sets × ${reps[0]} reps${weightDisplay}`
+      const rpeDisplay = avgRPE ? ` · RPE ${avgRPE}` : ''
+      return `${totalSets} sets × ${reps[0]} reps${weightDisplay}${rpeDisplay}`
     } else {
-      // Sets vary: "4 sets: 185×8, 185×7, 185×6, 185×5"
+      // Sets vary: "4 sets: 185×8@7, 185×7@8, 185×6@9"
       const setDetails = sets
         .map((set) => {
           const weight = set.weight || 0
           const rep = set.reps || 0
-          return weight > 0 ? `${weight}×${rep}` : `${rep} reps`
+          const rpe = set.rpe
+          const rpeDisplay = rpe ? `@${rpe}` : ''
+          return weight > 0 ? `${weight}×${rep}${rpeDisplay}` : `${rep} reps${rpeDisplay}`
         })
         .join(', ')
       return `${totalSets} sets: ${setDetails}`

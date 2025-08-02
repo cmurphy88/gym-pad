@@ -78,18 +78,32 @@ const SessionDetail = ({ session, onEdit, onBack }) => {
 
                 {/* Sets Table */}
                 <div className="bg-gray-700 rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-3 gap-4 p-3 bg-gray-600 text-sm font-medium text-gray-300">
+                  <div className="grid grid-cols-4 gap-4 p-3 bg-gray-600 text-sm font-medium text-gray-300">
                     <div>Set</div>
                     <div>Weight</div>
                     <div>Reps</div>
+                    <div>RPE</div>
                   </div>
                   
                   <div className="divide-y divide-gray-600">
                     {exercise.sets && exercise.sets.map((set, setIndex) => (
-                      <div key={setIndex} className="grid grid-cols-3 gap-4 p-3 text-sm">
+                      <div key={setIndex} className="grid grid-cols-4 gap-4 p-3 text-sm">
                         <div className="text-gray-400">#{setIndex + 1}</div>
                         <div className="text-white">{formatWeight(set.weight)}</div>
                         <div className="text-white">{set.reps}</div>
+                        <div className="text-white">
+                          {set.rpe ? (
+                            <span className={`font-medium ${
+                              set.rpe <= 6 ? 'text-green-400' :
+                              set.rpe <= 8 ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>
+                              {set.rpe}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">-</span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

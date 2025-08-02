@@ -50,13 +50,14 @@ export async function GET(request, { params }) {
         let exerciseHistory = []
 
         try {
-          // Find the most recent 2 exercises with this name
+          // Find the most recent 2 exercises with this name from this template only
           const latestExercises = await prisma.$queryRaw`
             SELECT e.*, w.date as workout_date
             FROM exercises e
             JOIN workouts w ON e.workout_id = w.id
             WHERE LOWER(e.name) = LOWER(${templateExercise.exerciseName})
               AND w.user_id = ${auth.user.id}
+              AND w.template_id = ${templateId}
             ORDER BY w.date DESC
             LIMIT 2
           `

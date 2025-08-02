@@ -39,7 +39,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
     const newExercise = {
       id: Date.now(), // Temporary ID for UI
       name: '',
-      sets: [{ reps: '', weight: '' }],
+      sets: [{ reps: '', weight: '', rpe: null }],
       notes: '',
       restSeconds: 60,
     }
@@ -71,7 +71,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
       ...prev,
       exercises: prev.exercises.map((ex) =>
         ex.id === exerciseId
-          ? { ...ex, sets: [...ex.sets, { reps: '', weight: '' }] }
+          ? { ...ex, sets: [...ex.sets, { reps: '', weight: '', rpe: null }] }
           : ex
       ),
     }))
@@ -158,6 +158,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
         sets: exercise.sets.map((set) => ({
           reps: parseInt(set.reps),
           weight: set.weight ? parseFloat(set.weight) : null,
+          rpe: set.rpe ? parseInt(set.rpe) : null,
         })),
         notes: exercise.notes.trim() || null,
         restSeconds: exercise.restSeconds || null,
@@ -297,68 +298,116 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                 )}
 
                 <div className="space-y-2">
-                  {exercise.sets.map((set, setIndex) => (
-                    <div key={setIndex} className="flex items-center gap-2">
-                      <span className="text-sm text-gray-400 w-8">
-                        #{setIndex + 1}
-                      </span>
-                      <div className="flex-1">
-                        <input
-                          type="number"
-                          value={set.weight}
-                          onChange={(e) =>
-                            updateSet(
-                              exercise.id,
-                              setIndex,
-                              'weight',
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
-                          placeholder="Weight (kg)"
-                          step="0.5"
-                          min="0"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          type="number"
-                          value={set.reps}
-                          onChange={(e) =>
-                            updateSet(
-                              exercise.id,
-                              setIndex,
-                              'reps',
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
-                          placeholder="Reps"
-                          min="1"
-                        />
-                        {errors[
-                          `exercise_${exerciseIndex}_set_${setIndex}_reps`
-                        ] && (
-                          <p className="text-red-400 text-xs mt-1">
-                            {
-                              errors[
-                                `exercise_${exerciseIndex}_set_${setIndex}_reps`
-                              ]
-                            }
-                          </p>
+                  {exercise.sets.map((set, setIndex) => {
+                    const hasWeightAndReps = set.weight && set.reps;
+                    return (
+                      <div key={setIndex} className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-400 w-8">
+                            #{setIndex + 1}
+                          </span>
+                          <div className="flex-1">
+                            <input
+                              type="number"
+                              value={set.weight}
+                              onChange={(e) =>
+                                updateSet(
+                                  exercise.id,
+                                  setIndex,
+                                  'weight',
+                                  e.target.value
+                                )
+                              }
+                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              placeholder="Weight (kg)"
+                              step="0.5"
+                              min="0"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <input
+                              type="number"
+                              value={set.reps}
+                              onChange={(e) =>
+                                updateSet(
+                                  exercise.id,
+                                  setIndex,
+                                  'reps',
+                                  e.target.value
+                                )
+                              }
+                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              placeholder="Reps"
+                              min="1"
+                            />
+                            {errors[
+                              `exercise_${exerciseIndex}_set_${setIndex}_reps`
+                            ] && (
+                              <p className="text-red-400 text-xs mt-1">
+                                {
+                                  errors[
+                                    `exercise_${exerciseIndex}_set_${setIndex}_reps`
+                                  ]
+                                }
+                              </p>
+                            )}
+                          </div>
+                          {exercise.sets.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeSet(exercise.id, setIndex)}
+                              className="p-1 text-red-400 hover:text-red-300"
+                            >
+                              <XIcon className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* RPE Slider - only show when weight and reps are filled */}
+                        {hasWeightAndReps && (
+                          <div className="ml-10 flex items-center gap-3">
+                            <span className="text-xs text-gray-400 w-8">RPE:</span>
+                            <div className="flex-1 flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="1"
+                                max="10"
+                                step="1"
+                                value={set.rpe || 7}
+                                onChange={(e) =>
+                                  updateSet(
+                                    exercise.id,
+                                    setIndex,
+                                    'rpe',
+                                    parseInt(e.target.value)
+                                  )
+                                }
+                                className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                                style={{
+                                  background: `linear-gradient(to right, 
+                                    #10b981 0%, #10b981 30%, 
+                                    #f59e0b 30%, #f59e0b 70%, 
+                                    #ef4444 70%, #ef4444 100%)`
+                                }}
+                              />
+                              <span className={`text-xs font-medium w-6 ${
+                                (set.rpe || 7) <= 6 ? 'text-green-400' :
+                                (set.rpe || 7) <= 8 ? 'text-yellow-400' :
+                                'text-red-400'
+                              }`}>
+                                {set.rpe || 7}
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {(set.rpe || 7) <= 6 ? 'Easy' :
+                               (set.rpe || 7) <= 8 ? 'Moderate' :
+                               'Hard'}
+                            </span>
+                          </div>
                         )}
                       </div>
-                      {exercise.sets.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSet(exercise.id, setIndex)}
-                          className="p-1 text-red-400 hover:text-red-300"
-                        >
-                          <XIcon className="h-3 w-3" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
