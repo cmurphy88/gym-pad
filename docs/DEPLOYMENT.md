@@ -163,12 +163,7 @@ NODE_ENV="production"
 
 ### Database URLs
 
-#### Development (SQLite)
-```env
-DATABASE_URL="file:./dev.db"
-```
-
-#### Production (PostgreSQL)
+#### PostgreSQL Database
 ```env
 # Vercel Postgres
 DATABASE_URL="postgres://user:password@host:port/database?sslmode=require"

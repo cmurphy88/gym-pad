@@ -6,7 +6,7 @@ This document provides comprehensive documentation for the Gym Pad application's
 
 ## Database Structure
 
-The application uses SQLite with Prisma ORM. The database consists of four main models:
+The application uses PostgreSQL with Prisma ORM. The database consists of the following main models:
 
 ### Models
 
@@ -302,7 +302,7 @@ const { data: workouts, error, isLoading } = useSWR('/api/workouts', fetcher)
 Create a `.env` file based on `.env.example`:
 
 ```
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://user:password@host:port/database"
 ```
 
 ## Dependencies

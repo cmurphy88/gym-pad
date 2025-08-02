@@ -18,10 +18,8 @@ build
 .env.production.local
 *.local
 
-# Database
-*.db
-*.sqlite
-prisma/dev.db
+# Database backups (if any)
+*.backup
 
 # Logs
 logs

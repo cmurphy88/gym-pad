@@ -27,14 +27,14 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 ### Backend
 
 - **API**: Next.js API routes with full CRUD operations
-- **Database**: SQLite with Prisma ORM (production-ready for PostgreSQL)
+- **Database**: PostgreSQL with Prisma ORM
 - **Validation**: Custom validation functions with PropTypes
 - **Data**: Persistent storage with relationships
 
 ### Deployment
 
 - **Platform**: Optimized for Vercel deployment
-- **Database**: Easy migration to Vercel Postgres for production
+- **Database**: PostgreSQL database on Vercel or any cloud provider
 
 ## Getting Started
 
@@ -101,10 +101,7 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 ### Environment Variables
 
 ```env
-# Development (SQLite)
-DATABASE_URL="file:./dev.db"
-
-# Production (PostgreSQL)
+# PostgreSQL Database URL
 DATABASE_URL="postgresql://user:password@host:port/database"
 ```
 

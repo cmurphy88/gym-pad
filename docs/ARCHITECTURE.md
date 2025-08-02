@@ -95,7 +95,7 @@ graph TB
 ### Backend
 - **Runtime**: Node.js with Next.js API Routes
 - **Database ORM**: Prisma
-- **Database**: PostgreSQL (SQLite for development)
+- **Database**: PostgreSQL
 - **Authentication**: Session-based with HTTP-only cookies
 - **Validation**: Custom validation functions
 
@@ -189,7 +189,7 @@ Data persistence and management.
 
 **Components:**
 - **Prisma ORM**: Database abstraction and query building
-- **Database**: PostgreSQL for production, SQLite for development
+- **Database**: PostgreSQL
 - **Session Store**: Server-side session management
 - **Migrations**: Database schema versioning
 
