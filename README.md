@@ -6,7 +6,10 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 
 - **Workout Sessions**: Create, view, and organize workout sessions with persistent storage
 - **Exercise Tracking**: Track sets, reps, and weights for each exercise with database persistence
+- **RPE System**: Rate of Perceived Exertion tracking (1-10 scale) with color-coded effort levels
+- **Auto-Regulation**: Intelligent weight/rep recommendations based on RPE and training history
 - **Progress History**: View detailed exercise history with interactive progress charts
+- **Smart Templates**: Template-specific exercise prefill prevents cross-workout contamination
 - **Interactive Dashboard**: Clean, modern interface with dark theme
 - **Exercise Analytics**: Visual progress tracking with charts and trends over time
 - **Real-time Data**: Automatic data sync and caching with SWR
@@ -128,6 +131,8 @@ This project was successfully migrated from React + Vite to Next.js fullstack. S
 - ✅ Enable data-driven fitness progress through visual analytics  
 - ✅ Create a responsive, mobile-friendly experience for on-the-go tracking
 - ✅ Build a foundation with persistent data storage and full CRUD operations
+- ✅ Implement science-based RPE tracking and auto-regulation system
+- ✅ Add intelligent workout templates with exercise-specific progression
 - 🔄 Add user authentication and multi-user support
-- 🔄 Implement workout planning and program templates
+- 🔄 Implement advanced periodization and training phases
 - 🔄 Add social sharing and workout community features

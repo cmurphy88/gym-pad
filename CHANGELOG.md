@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **RPE (Rate of Perceived Exertion) System** - Complete 1-10 scale effort tracking with color-coded display
+- **Auto-Regulation Intelligence** - Smart weight/rep recommendations based on RPE history and target rep ranges
+- **Template-Specific Exercise Prefill** - Prevents cross-workout contamination (e.g., heavy squats on Legs day vs light squats on Lower day)
+- **Progressive Overload Algorithm** - Intelligent progression recommendations using RPE data
+- **RPE Analytics** - Fatigue monitoring, readiness assessment, and training stress analysis
+- **Enhanced Workout Forms** - RPE sliders appear progressively after weight/reps are entered
+- **Comprehensive workout display** - RPE shown in exercise summaries, session details, and history
 - Comprehensive documentation suite in `docs/` directory
 - **API Documentation** (`docs/API.md`) - Complete API reference with all endpoints, request/response formats, and examples
 - **Architecture Documentation** (`docs/ARCHITECTURE.md`) - System architecture, component structure, data flow diagrams, and technology stack overview
@@ -20,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Enhanced Exercise Validation** - Added RPE validation (1-10 integer scale) to exercise data validation
+- **Improved Data Persistence** - RPE data now properly saved and retrieved through all workout forms
+- **Template Progression Logic** - Exercise prefill now uses template-specific history instead of global exercise history
 - Reorganized README.md to focus on quick start with links to detailed documentation
 - Updated API section to reference comprehensive API documentation
 - Enhanced deployment section with reference to detailed deployment guide
