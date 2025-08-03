@@ -363,13 +363,13 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                           )}
                         </div>
                         
-                        {/* RPE Slider - only show when weight and reps are filled */}
+                        {/* RPE Input - only show when weight and reps are filled */}
                         {hasWeightAndReps && (
                           <div className="ml-10 flex items-center gap-3">
                             <span className="text-xs text-gray-400 w-8">RPE:</span>
-                            <div className="flex-1 flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                               <input
-                                type="range"
+                                type="number"
                                 min="1"
                                 max="10"
                                 step="1"
@@ -382,27 +382,14 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                     parseInt(e.target.value)
                                   )
                                 }
-                                className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-                                style={{
-                                  background: `linear-gradient(to right, 
-                                    #10b981 0%, #10b981 30%, 
-                                    #f59e0b 30%, #f59e0b 70%, 
-                                    #ef4444 70%, #ef4444 100%)`
-                                }}
+                                className="w-12 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
                               />
-                              <span className={`text-xs font-medium w-6 ${
-                                (set.rpe || 7) <= 6 ? 'text-green-400' :
-                                (set.rpe || 7) <= 8 ? 'text-yellow-400' :
-                                'text-red-400'
-                              }`}>
-                                {set.rpe || 7}
+                              <span className="text-xs text-gray-500">
+                                {(set.rpe || 7) <= 6 ? 'Easy' :
+                                 (set.rpe || 7) <= 8 ? 'Moderate' :
+                                 'Hard'}
                               </span>
                             </div>
-                            <span className="text-xs text-gray-500">
-                              {(set.rpe || 7) <= 6 ? 'Easy' :
-                               (set.rpe || 7) <= 8 ? 'Moderate' :
-                               'Hard'}
-                            </span>
                           </div>
                         )}
                       </div>
