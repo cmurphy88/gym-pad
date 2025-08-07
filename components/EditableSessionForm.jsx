@@ -509,7 +509,8 @@ const EditableSessionForm = ({
                                   min="1"
                                   max="10"
                                   step="1"
-                                  value={set.rpe || 7}
+                                  value={set.rpe || ''}
+                                  placeholder="7"
                                   onChange={(e) =>
                                     updateSet(
                                       exercise.id,
@@ -522,8 +523,9 @@ const EditableSessionForm = ({
                                   disabled={isSubmitting}
                                 />
                                 <span className="text-xs text-gray-500">
-                                  {(set.rpe || 7) <= 6 ? 'Easy' :
-                                   (set.rpe || 7) <= 8 ? 'Moderate' :
+                                  {!set.rpe ? 'Not set' :
+                                   set.rpe <= 6 ? 'Easy' :
+                                   set.rpe <= 8 ? 'Moderate' :
                                    'Hard'}
                                 </span>
                               </div>

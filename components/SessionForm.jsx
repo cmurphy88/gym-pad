@@ -373,7 +373,8 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                 min="1"
                                 max="10"
                                 step="1"
-                                value={set.rpe || 7}
+                                value={set.rpe || ''}
+                                placeholder="7"
                                 onChange={(e) =>
                                   updateSet(
                                     exercise.id,
@@ -385,8 +386,9 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                 className="w-12 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
                               />
                               <span className="text-xs text-gray-500">
-                                {(set.rpe || 7) <= 6 ? 'Easy' :
-                                 (set.rpe || 7) <= 8 ? 'Moderate' :
+                                {!set.rpe ? 'Not set' :
+                                 set.rpe <= 6 ? 'Easy' :
+                                 set.rpe <= 8 ? 'Moderate' :
                                  'Hard'}
                               </span>
                             </div>
