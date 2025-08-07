@@ -11,7 +11,13 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "node lib/seed-templates.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --coverage --reporter=verbose",
+    "test:watch": "vitest watch"
   },
   "keywords": [],
   "author": "",
@@ -40,5 +46,16 @@
     "recharts": "^3.1.0",
     "swr": "^2.3.4",
     "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^5.0.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "msw": "^2.10.4",
+    "vitest": "^3.2.4"
   }
 }
