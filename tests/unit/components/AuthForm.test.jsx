@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import AuthForm from '@/components/AuthForm';
@@ -24,6 +24,7 @@ describe('AuthForm Component', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     global.fetch.mockClear();
+    cleanup(); // Ensure clean DOM before each test
     
     // Mock useRouter
     const { useRouter } = vi.mocked(await import('next/navigation'));
@@ -43,36 +44,40 @@ describe('AuthForm Component', () => {
     });
   });
 
+  afterEach(() => {
+    cleanup(); // Ensure clean DOM after each test
+  });
+
   describe('Rendering', () => {
     it('renders login form by default', () => {
-      render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
+      const { container } = render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter your username')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter your password')).toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('Enter your full name')).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Sign in to your account' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Username')).toBeInTheDocument();
+      expect(screen.getByLabelText('Password')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Full Name')).not.toBeInTheDocument();
     });
 
     it('renders sign up link in login mode', () => {
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
       expect(screen.getByText("Don't have an account?")).toBeInTheDocument();
-      expect(screen.getByText('Sign up')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign up' })).toBeInTheDocument();
     });
 
     it('switches to register form when sign up is clicked', async () => {
       const user = userEvent.setup();
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      const signUpButton = screen.getByText('Sign up');
+      const signUpButton = screen.getByRole('button', { name: 'Sign up' });
       await user.click(signUpButton);
       
-      expect(screen.getByText('Create your account')).toBeInTheDocument();
-      expect(screen.getByText('Sign Up')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter your full name')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Create your account' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign Up' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Full Name')).toBeInTheDocument();
       expect(screen.getByText('Already have an account?')).toBeInTheDocument();
-      expect(screen.getByText('Sign in')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
     });
 
     it('switches back to login from register', async () => {
@@ -80,13 +85,13 @@ describe('AuthForm Component', () => {
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
       // Switch to register
-      await user.click(screen.getByText('Sign up'));
-      expect(screen.getByText('Create your account')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Sign up' }));
+      expect(screen.getByRole('heading', { name: 'Create your account' })).toBeInTheDocument();
       
       // Switch back to login
-      await user.click(screen.getByText('Sign in'));
-      expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('Enter your full name')).not.toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Sign in' }));
+      expect(screen.getByRole('heading', { name: 'Sign in to your account' })).toBeInTheDocument();
+      expect(screen.queryByLabelText('Full Name')).not.toBeInTheDocument();
     });
   });
 
@@ -95,8 +100,8 @@ describe('AuthForm Component', () => {
       const user = userEvent.setup();
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      const usernameInput = screen.getByPlaceholderText('Enter your username');
-      const passwordInput = screen.getByPlaceholderText('Enter your password');
+      const usernameInput = screen.getByLabelText('Username');
+      const passwordInput = screen.getByLabelText('Password');
       
       await user.type(usernameInput, 'testuser');
       await user.type(passwordInput, 'testpass');
@@ -109,14 +114,14 @@ describe('AuthForm Component', () => {
       const user = userEvent.setup();
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      const usernameInput = screen.getByPlaceholderText('Enter your username');
+      const usernameInput = screen.getByLabelText('Username');
       await user.type(usernameInput, 'testuser');
       
       // Switch to register
-      await user.click(screen.getByText('Sign up'));
+      await user.click(screen.getByRole('button', { name: 'Sign up' }));
       
       // Form should be cleared
-      expect(screen.getByPlaceholderText('Enter your username')).toHaveValue('');
+      expect(screen.getByLabelText('Username')).toHaveValue('');
     });
 
     it('clears error when switching modes', async () => {
@@ -129,9 +134,9 @@ describe('AuthForm Component', () => {
         json: () => Promise.resolve({ error: 'Invalid credentials' })
       });
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'test');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'test');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'test');
+      await user.type(screen.getByLabelText('Password'), 'test');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a bit for the async operation to complete
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -139,7 +144,7 @@ describe('AuthForm Component', () => {
       // Check if error appears
       if (screen.queryByText('Invalid credentials')) {
         // Switch modes
-        await user.click(screen.getByText('Sign up'));
+        await user.click(screen.getByRole('button', { name: 'Sign up' }));
         
         // Error should be cleared
         expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
@@ -156,9 +161,9 @@ describe('AuthForm Component', () => {
         json: () => Promise.resolve({ error: 'Invalid credentials' })
       });
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'test');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'test');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'test');
+      await user.type(screen.getByLabelText('Password'), 'test');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a bit for the async operation to complete
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -166,7 +171,7 @@ describe('AuthForm Component', () => {
       // Check if error appears and then test clearing
       if (screen.queryByText('Invalid credentials')) {
         // Start typing again
-        const usernameInput = screen.getByPlaceholderText('Enter your username');
+        const usernameInput = screen.getByLabelText('Username');
         await user.clear(usernameInput);
         await user.type(usernameInput, 'newuser');
         
@@ -186,9 +191,9 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       expect(global.fetch).toHaveBeenCalledWith('/api/auth/login', {
         method: 'POST',
@@ -207,12 +212,12 @@ describe('AuthForm Component', () => {
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
       // Switch to register
-      await user.click(screen.getByText('Sign up'));
+      await user.click(screen.getByRole('button', { name: 'Sign up' }));
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your full name'), 'Test User');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
-      await user.click(screen.getByText('Sign Up'));
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Full Name'), 'Test User');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
+      await user.click(screen.getByRole('button', { name: 'Sign Up' }));
       
       expect(global.fetch).toHaveBeenCalledWith('/api/auth/register', {
         method: 'POST',
@@ -238,10 +243,10 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
       
-      const submitButton = screen.getByText('Sign In');
+      const submitButton = screen.getByRole('button', { name: 'Sign In' });
       await user.click(submitButton);
       
       expect(screen.getByText('Please wait...')).toBeInTheDocument();
@@ -262,9 +267,9 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a moment for the async operation
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -283,9 +288,9 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'wrongpass');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'wrongpass');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a moment for the async operation
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -303,12 +308,12 @@ describe('AuthForm Component', () => {
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
       // Switch to register
-      await user.click(screen.getByText('Sign up'));
+      await user.click(screen.getByRole('button', { name: 'Sign up' }));
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'existinguser');
-      await user.type(screen.getByPlaceholderText('Enter your full name'), 'Test User');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
-      await user.click(screen.getByText('Sign Up'));
+      await user.type(screen.getByLabelText('Username'), 'existinguser');
+      await user.type(screen.getByLabelText('Full Name'), 'Test User');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
+      await user.click(screen.getByRole('button', { name: 'Sign Up' }));
       
       // Wait a moment for the async operation
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -322,9 +327,9 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a moment for the async operation
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -341,9 +346,9 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a moment for the async operation
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -364,7 +369,7 @@ describe('AuthForm Component', () => {
       const user = userEvent.setup();
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.click(screen.getByText('Sign up'));
+      await user.click(screen.getByRole('button', { name: 'Sign up' }));
       
       expect(screen.getByLabelText('Username')).toBeInTheDocument();
       expect(screen.getByLabelText('Full Name')).toBeInTheDocument();
@@ -374,8 +379,8 @@ describe('AuthForm Component', () => {
     it('marks required fields correctly', () => {
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      expect(screen.getByPlaceholderText('Enter your username')).toHaveAttribute('required');
-      expect(screen.getByPlaceholderText('Enter your password')).toHaveAttribute('required');
+      expect(screen.getByLabelText('Username')).toHaveAttribute('required');
+      expect(screen.getByLabelText('Password')).toHaveAttribute('required');
     });
 
     it('has proper error styling', async () => {
@@ -387,9 +392,9 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'test');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'test');
-      await user.click(screen.getByText('Sign In'));
+      await user.type(screen.getByLabelText('Username'), 'test');
+      await user.type(screen.getByLabelText('Password'), 'test');
+      await user.click(screen.getByRole('button', { name: 'Sign In' }));
       
       // Wait a moment for the async operation
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -404,10 +409,10 @@ describe('AuthForm Component', () => {
       const user = userEvent.setup();
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
       
-      const submitButton = screen.getByText('Sign In');
+      const submitButton = screen.getByRole('button', { name: 'Sign In' });
       expect(submitButton).not.toBeDisabled();
     });
 
@@ -423,10 +428,10 @@ describe('AuthForm Component', () => {
       
       render(<AuthForm onAuthSuccess={mockOnAuthSuccess} />);
       
-      await user.type(screen.getByPlaceholderText('Enter your username'), 'testuser');
-      await user.type(screen.getByPlaceholderText('Enter your password'), 'testpass');
+      await user.type(screen.getByLabelText('Username'), 'testuser');
+      await user.type(screen.getByLabelText('Password'), 'testpass');
       
-      const submitButton = screen.getByText('Sign In');
+      const submitButton = screen.getByRole('button', { name: 'Sign In' });
       await user.click(submitButton);
       
       expect(submitButton).toBeDisabled();
