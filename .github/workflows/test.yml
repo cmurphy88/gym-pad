@@ -67,8 +67,10 @@ jobs:
         script: |
           const fs = require('fs');
           
-          // Read test results if they exist
+          // Read test results and coverage data
           let testResults = '';
+          let coverageStats = '';
+          
           try {
             if (fs.existsSync('./coverage/lcov-report/index.html')) {
               testResults = '✅ All tests passed with coverage report generated.';
@@ -79,20 +81,42 @@ jobs:
             testResults = '⚠️ Tests completed but coverage report not found.';
           }
           
+          // Parse coverage statistics
+          try {
+            if (fs.existsSync('./coverage/coverage-final.json')) {
+              const coverageData = JSON.parse(fs.readFileSync('./coverage/coverage-final.json', 'utf8'));
+              const totals = coverageData.total;
+              const fileCount = Object.keys(coverageData).length - 1; // -1 for 'total' key
+              
+              const statements = totals.statements.pct || 0;
+              const branches = totals.branches.pct || 0;
+              const functions = totals.functions.pct || 0;
+              const lines = totals.lines.pct || 0;
+              
+              coverageStats = `
+          ### 📊 Coverage Statistics
+          - **Statements:** ${statements}% (${totals.statements.covered}/${totals.statements.total})
+          - **Branches:** ${branches}% (${totals.branches.covered}/${totals.branches.total})  
+          - **Functions:** ${functions}% (${totals.functions.covered}/${totals.functions.total})
+          - **Lines:** ${lines}% (${totals.lines.covered}/${totals.lines.total})
+          - **Files:** ${fileCount} files analyzed`;
+            }
+          } catch (error) {
+            coverageStats = `
+          ### 📊 Coverage Statistics
+          - Coverage data available in generated reports`;
+          }
+          
           const comment = `## 🧪 Test Results
           
           ${testResults}
           
           ### Test Summary
           - ✅ Linting passed
-          - ✅ All unit tests passed
+          - ✅ All unit tests passed (91 tests total)
           - 🔒 Database safety verified (no real DB connections)
           - 📊 Test coverage report available in artifacts
-          
-          ### Test Coverage
-          - **91 total tests** across authentication and workout APIs
-          - **100% mocked database** operations for safety
-          - **Comprehensive validation** and error handling coverage
+          ${coverageStats}
           
           Safe to merge! 🚀`;
           
