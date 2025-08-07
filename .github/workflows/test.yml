@@ -113,7 +113,9 @@ jobs:
           
           ### Test Summary
           - ✅ Linting passed
-          - ✅ All unit tests passed (91 tests total)
+          - ✅ All unit tests passed (185 tests total)
+            - 69 API endpoint tests
+            - 135 frontend component tests
           - 🔒 Database safety verified (no real DB connections)
           - 📊 Test coverage report available in artifacts
           ${coverageStats}

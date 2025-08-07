@@ -124,6 +124,35 @@ vi.mock('next/headers', () => ({
   }))
 }));
 
+// Mock navigator.clipboard for @testing-library/user-event
+// This is critical for component tests that use userEvent
+beforeAll(() => {
+  console.log('🔧 Setting up navigator.clipboard mock for user-event');
+  
+  // Ensure global.navigator exists
+  if (!global.navigator) {
+    global.navigator = {};
+  }
+  
+  // Mock clipboard API completely
+  global.navigator.clipboard = {
+    writeText: vi.fn(() => Promise.resolve()),
+    readText: vi.fn(() => Promise.resolve('')),
+    write: vi.fn(() => Promise.resolve()),
+    read: vi.fn(() => Promise.resolve())
+  };
+  
+  // Also set it on window.navigator for browser-like environments
+  if (typeof window !== 'undefined') {
+    if (!window.navigator) {
+      window.navigator = {};
+    }
+    window.navigator.clipboard = global.navigator.clipboard;
+  }
+  
+  console.log('✅ Navigator.clipboard mock initialized');
+});
+
 // Clean up mocks between tests
 beforeEach(() => {
   console.log('🧹 Cleaning up mocks for fresh test state');
