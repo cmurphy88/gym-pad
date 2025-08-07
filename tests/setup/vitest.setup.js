@@ -124,6 +124,19 @@ vi.mock('next/headers', () => ({
   }))
 }));
 
+// Mock navigator.clipboard for @testing-library/user-event
+if (!global.navigator) {
+  global.navigator = {};
+}
+if (!global.navigator.clipboard) {
+  global.navigator.clipboard = {
+    writeText: vi.fn(() => Promise.resolve()),
+    readText: vi.fn(() => Promise.resolve('')),
+    write: vi.fn(() => Promise.resolve()),
+    read: vi.fn(() => Promise.resolve())
+  };
+}
+
 // Clean up mocks between tests
 beforeEach(() => {
   console.log('🧹 Cleaning up mocks for fresh test state');
