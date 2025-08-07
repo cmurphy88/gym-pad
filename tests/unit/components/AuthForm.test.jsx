@@ -17,6 +17,20 @@ global.window = {
   location: { reload: vi.fn() }
 };
 
+// CRITICAL: Mock navigator.clipboard for user-event library
+// This prevents "Cannot read properties of undefined (reading 'clipboard')" errors
+if (!global.navigator) {
+  global.navigator = {};
+}
+if (!global.navigator.clipboard) {
+  global.navigator.clipboard = {
+    writeText: vi.fn(() => Promise.resolve()),
+    readText: vi.fn(() => Promise.resolve('')),
+    write: vi.fn(() => Promise.resolve()),
+    read: vi.fn(() => Promise.resolve())
+  };
+}
+
 describe('AuthForm Component', () => {
   const mockOnAuthSuccess = vi.fn();
   const mockPush = vi.fn();

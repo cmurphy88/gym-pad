@@ -4,6 +4,19 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import Toast from '@/components/Toast';
 
+// CRITICAL: Mock navigator.clipboard for user-event library
+if (!global.navigator) {
+  global.navigator = {};
+}
+if (!global.navigator.clipboard) {
+  global.navigator.clipboard = {
+    writeText: vi.fn(() => Promise.resolve()),
+    readText: vi.fn(() => Promise.resolve('')),
+    write: vi.fn(() => Promise.resolve()),
+    read: vi.fn(() => Promise.resolve())
+  };
+}
+
 describe('Toast Component', () => {
   const mockOnClose = vi.fn();
 

@@ -4,6 +4,19 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import Header from '@/components/Header';
 
+// CRITICAL: Mock navigator.clipboard for user-event library
+if (!global.navigator) {
+  global.navigator = {};
+}
+if (!global.navigator.clipboard) {
+  global.navigator.clipboard = {
+    writeText: vi.fn(() => Promise.resolve()),
+    readText: vi.fn(() => Promise.resolve('')),
+    write: vi.fn(() => Promise.resolve()),
+    read: vi.fn(() => Promise.resolve())
+  };
+}
+
 // Mock Next.js navigation
 vi.mock('next/navigation', async () => {
   const actual = await vi.importActual('./__mocks__/next-navigation.js');
