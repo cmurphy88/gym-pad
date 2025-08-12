@@ -192,6 +192,14 @@ const workouts = await prisma.workout.findMany({
 3. **Authentication**: Always test both authenticated and unauthenticated states
 4. **Testing**: Use development server with `npm run dev` for hot reload
 
+## Plan Mode Guidelines
+
+When in plan mode and creating .md files for project planning, documentation, or brainstorming:
+- **Always create plan files in `.claude/context/` directory**
+- Use descriptive filenames that clearly indicate the plan's purpose
+- Examples: `.claude/context/feature-plan.md`, `.claude/context/implementation-strategy.md`
+- This keeps planning documents organized and separate from project code
+
 ## Notes
 
 - This is a single-user application transitioning to multi-user

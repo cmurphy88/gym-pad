@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **RPE Analytics** - Fatigue monitoring, readiness assessment, and training stress analysis
 - **Enhanced Workout Forms** - RPE sliders appear progressively after weight/reps are entered
 - **Comprehensive workout display** - RPE shown in exercise summaries, session details, and history
+- **Session Templates System** - Pre-configured workout templates (Push, Pull, Legs, Upper, Lower) with exercise prefill and smart recommendations
+- **Individual Set Tracking** - Detailed tracking of weight/reps for each set within exercises, supporting progressive overload and realistic training data
+- **Enhanced Dashboard UI** - Collapsible workout cards with monthly/yearly grouping for cleaner, more organized workout history display
+- **User Authentication System** - Secure username/password authentication with long-lasting sessions and user data isolation
+- **Weight Tracking with Analytics** - Body weight logging with visual progress charts and goal setting for weight management
 - Comprehensive documentation suite in `docs/` directory
 - **API Documentation** (`docs/API.md`) - Complete API reference with all endpoints, request/response formats, and examples
 - **Architecture Documentation** (`docs/ARCHITECTURE.md`) - System architecture, component structure, data flow diagrams, and technology stack overview
@@ -61,10 +66,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Migration to Next.js Fullstack
 
-- Migrated from React + Vite to Next.js 15 with App Router
-- Implemented Next.js API routes for backend functionality
-- Added PostgreSQL database with Prisma ORM
-- Configured for Vercel deployment with automatic builds
+- **Complete Application Migration** - Successfully migrated from React + Vite to Next.js 15 fullstack architecture
+- **Modern Database Architecture** - Migrated from mock data to PostgreSQL with Prisma ORM and proper relationships
+- **Sets Data Structure Migration** - Converted from single sets/reps/weight format to flexible sets array supporting individual set tracking
+- **API Layer Implementation** - Built complete REST API with 16+ endpoints for all workout operations
+- **Deployment Optimization** - Configured for Vercel deployment with automatic builds and database migrations
 
 ---
 
