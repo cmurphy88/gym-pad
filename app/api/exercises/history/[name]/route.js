@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { parseSetsData, calculateExerciseSummary } from '@/lib/migrate-sets';
 import { requireAuth } from '@/lib/middleware';
+import { getLocalDateKey } from '@/lib/dateUtils';
 
 /**
  * GET /api/exercises/history/[name] - Get exercise history by name
@@ -37,7 +38,7 @@ export async function GET(request, { params }) {
       const summary = calculateExerciseSummary(sets);
       
       return {
-        date: exercise.workout_date.toISOString().split('T')[0],
+        date: getLocalDateKey(exercise.workout_date),
         sets: sets,
         // For backwards compatibility, provide summary data
         totalSets: summary.totalSets,
