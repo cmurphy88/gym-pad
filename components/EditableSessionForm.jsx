@@ -277,6 +277,12 @@ const EditableSessionForm = ({
     }
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -309,6 +315,7 @@ const EditableSessionForm = ({
                 type="text"
                 value={workoutData.title}
                 onChange={(e) => handleWorkoutChange('title', e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 placeholder="e.g., Push Day, Legs, etc."
                 disabled={isSubmitting}
@@ -342,6 +349,7 @@ const EditableSessionForm = ({
             <textarea
               value={workoutData.notes}
               onChange={(e) => handleWorkoutChange('notes', e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="How did it feel? Any observations?"
               rows="3"
@@ -380,6 +388,7 @@ const EditableSessionForm = ({
                       onChange={(e) =>
                         updateExercise(exercise.id, 'name', e.target.value)
                       }
+                      onKeyDown={handleKeyDown}
                       className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                       placeholder="Exercise name"
                       disabled={isSubmitting}
@@ -451,6 +460,7 @@ const EditableSessionForm = ({
                                     e.target.value
                                   )
                                 }
+                                onKeyDown={handleKeyDown}
                                 className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 placeholder="Weight (kg)"
                                 step="0.5"
@@ -470,6 +480,7 @@ const EditableSessionForm = ({
                                     e.target.value
                                   )
                                 }
+                                onKeyDown={handleKeyDown}
                                 className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 placeholder="Reps"
                                 min="1"
@@ -519,6 +530,7 @@ const EditableSessionForm = ({
                                       parseInt(e.target.value)
                                     )
                                   }
+                                  onKeyDown={handleKeyDown}
                                   className="w-12 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
                                   disabled={isSubmitting}
                                 />
@@ -545,6 +557,7 @@ const EditableSessionForm = ({
                     onChange={(e) =>
                       updateExercise(exercise.id, 'notes', e.target.value)
                     }
+                    onKeyDown={handleKeyDown}
                     className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                     placeholder="Exercise notes (optional)"
                     disabled={isSubmitting}

@@ -169,6 +169,12 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
     onSubmit(formattedData)
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Workout Details */}
@@ -186,6 +192,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
               type="text"
               value={workoutData.title}
               onChange={(e) => handleWorkoutChange('title', e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="e.g., Push Day, Legs, etc."
             />
@@ -218,6 +225,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
             type="text"
             value={workoutData.notes}
             onChange={(e) => handleWorkoutChange('notes', e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="How did it feel? Any observations?"
           />
@@ -253,6 +261,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                     onChange={(e) =>
                       updateExercise(exercise.id, 'name', e.target.value)
                     }
+                    onKeyDown={handleKeyDown}
                     className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="Exercise name"
                   />
@@ -318,6 +327,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                   e.target.value
                                 )
                               }
+                              onKeyDown={handleKeyDown}
                               className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                               placeholder="Weight (kg)"
                               step="0.5"
@@ -336,6 +346,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                   e.target.value
                                 )
                               }
+                              onKeyDown={handleKeyDown}
                               className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                               placeholder="Reps"
                               min="1"
@@ -383,6 +394,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                     parseInt(e.target.value)
                                   )
                                 }
+                                onKeyDown={handleKeyDown}
                                 className="w-12 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
                               />
                               <span className="text-xs text-gray-500">
@@ -408,6 +420,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                   onChange={(e) =>
                     updateExercise(exercise.id, 'notes', e.target.value)
                   }
+                  onKeyDown={handleKeyDown}
                   className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                   placeholder="Exercise notes (optional)"
                 />

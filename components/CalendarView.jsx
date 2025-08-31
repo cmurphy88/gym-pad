@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { DayPicker } from 'react-day-picker'
 import { useRouter } from 'next/navigation'
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { getLocalDateKey } from '@/lib/dateUtils'
 import 'react-day-picker/dist/style.css'
 
 const CalendarView = ({ onClose }) => {
@@ -48,7 +49,7 @@ const CalendarView = ({ onClose }) => {
 
   // Handle day click
   const handleDayClick = (date) => {
-    const dateKey = date.toISOString().split('T')[0]
+    const dateKey = getLocalDateKey(date)
     const workouts = workoutData[dateKey] || []
 
     if (workouts.length === 1) {
@@ -113,7 +114,7 @@ const CalendarView = ({ onClose }) => {
             showOutsideDays
             modifiers={{
               hasWorkout: (date) => {
-                const dateKey = date.toISOString().split('T')[0]
+                const dateKey = getLocalDateKey(date)
                 const workouts = workoutData[dateKey] || []
                 return workouts.length > 0
               },
@@ -122,7 +123,7 @@ const CalendarView = ({ onClose }) => {
               Day: (props) => {
                 const { day, ...otherProps } = props
                 const date = day.date
-                const dateKey = date.toISOString().split('T')[0]
+                const dateKey = getLocalDateKey(date)
                 const workouts = workoutData[dateKey] || []
                 const hasWorkouts = workouts.length > 0
 

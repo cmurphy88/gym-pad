@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/middleware'
+import { getLocalDateKey } from '@/lib/dateUtils'
 
 /**
  * GET /api/workouts/calendar - Get workouts grouped by date for calendar view
@@ -37,10 +38,10 @@ export async function GET(request) {
       }
     })
 
-    // Group workouts by date
+    // Group workouts by date using local timezone
     const workoutsByDate = {}
     workouts.forEach(workout => {
-      const dateKey = workout.date.toISOString().split('T')[0]
+      const dateKey = getLocalDateKey(workout.date)
       if (!workoutsByDate[dateKey]) {
         workoutsByDate[dateKey] = []
       }
