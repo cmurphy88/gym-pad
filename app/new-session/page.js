@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import useSWR from 'swr'
 import SessionForm from '@/components/SessionForm'
 import Header from '@/components/Header'
+import PRCelebration from '@/components/PRCelebration'
+import { detectNewPRs } from '@/lib/pr-calculations'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
@@ -13,7 +15,9 @@ function NewSessionContent() {
   const searchParams = useSearchParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [templateData, setTemplateData] = useState(null)
-  
+  const [newPRs, setNewPRs] = useState(null)
+  const [showPRCelebration, setShowPRCelebration] = useState(false)
+
   const templateId = searchParams.get('templateId')
   
   // Fetch template data if templateId is provided
@@ -58,6 +62,29 @@ function NewSessionContent() {
   const handleSubmit = async (workoutData) => {
     setIsSubmitting(true)
     try {
+      // Fetch exercise histories for PR detection before saving
+      const exerciseHistories = {}
+      const exerciseNames = workoutData.exercises
+        .map((e) => e.name?.trim())
+        .filter(Boolean)
+
+      // Fetch histories in parallel
+      await Promise.all(
+        exerciseNames.map(async (name) => {
+          try {
+            const res = await fetch(
+              `/api/exercises/history/${encodeURIComponent(name)}`,
+              { credentials: 'include' }
+            )
+            if (res.ok) {
+              exerciseHistories[name] = await res.json()
+            }
+          } catch {
+            // First time exercise - no history, that's fine
+          }
+        })
+      )
+
       // If we're using a template, include the templateId
       const payload = {
         ...workoutData,
@@ -65,7 +92,7 @@ function NewSessionContent() {
       }
 
       const endpoint = templateId ? '/api/workouts/from-template' : '/api/workouts'
-      
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -78,8 +105,17 @@ function NewSessionContent() {
         throw new Error('Failed to create workout')
       }
 
-      // Redirect back to home page after successful creation
-      router.push('/')
+      // Detect new PRs
+      const detectedPRs = detectNewPRs(workoutData.exercises, exerciseHistories)
+
+      if (detectedPRs.length > 0) {
+        // Show celebration modal
+        setNewPRs(detectedPRs)
+        setShowPRCelebration(true)
+      } else {
+        // No PRs, redirect directly
+        router.push('/')
+      }
     } catch (error) {
       console.error('Error creating workout:', error)
       // You could add error handling here (toast notification, etc.)
@@ -128,31 +164,44 @@ function NewSessionContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
-      <Header />
-      <main className="flex-1 p-4 md:p-6">
-        <div className="container mx-auto max-w-4xl">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              {templateId ? `New ${template?.name || 'Template'} Session` : 'New Workout Session'}
-            </h1>
-            <p className="text-gray-400">
-              {templateId 
-                ? 'Pre-filled with your latest performance data' 
-                : 'Track your workout as you complete it'
-              }
-            </p>
+    <>
+      <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
+        <Header />
+        <main className="flex-1 p-4 md:p-6">
+          <div className="container mx-auto max-w-4xl">
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-white mb-2">
+                {templateId ? `New ${template?.name || 'Template'} Session` : 'New Workout Session'}
+              </h1>
+              <p className="text-gray-400">
+                {templateId
+                  ? 'Pre-filled with your latest performance data'
+                  : 'Track your workout as you complete it'
+                }
+              </p>
+            </div>
+
+            <SessionForm
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              isSubmitting={isSubmitting}
+              initialData={templateData}
+            />
           </div>
-          
-          <SessionForm 
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSubmitting={isSubmitting}
-            initialData={templateData}
-          />
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+
+      {/* PR Celebration Modal */}
+      {showPRCelebration && newPRs && (
+        <PRCelebration
+          prs={newPRs}
+          onClose={() => {
+            setShowPRCelebration(false)
+            router.push('/')
+          }}
+        />
+      )}
+    </>
   )
 }
 
