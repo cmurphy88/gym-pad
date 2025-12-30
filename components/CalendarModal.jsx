@@ -37,7 +37,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
       className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto">
+      <div className="bg-surface rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-auto">
         <CalendarView onClose={onClose} />
       </div>
     </div>

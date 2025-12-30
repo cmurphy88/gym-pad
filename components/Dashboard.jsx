@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
 import SessionCard from './SessionCard'
 import TemplateSelector from './TemplateSelector'
-import WeightSummary from './WeightSummary'
 import { PlusCircleIcon, DumbbellIcon } from 'lucide-react'
 
 /**
@@ -71,10 +70,10 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
     return (
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">Your Workouts</h2>
+          <h2 className="text-2xl font-bold text-text-primary">Your Workouts</h2>
           <button
             onClick={handleNewSession}
-            className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            className="flex items-center px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors min-h-[44px] shadow-lg shadow-blue-500/25"
           >
             <PlusCircleIcon className="h-5 w-5 mr-2" />
             New Session
@@ -83,12 +82,12 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Loading skeletons */}
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-gray-800 rounded-xl p-5 animate-pulse">
-              <div className="h-6 bg-gray-700 rounded mb-3"></div>
+            <div key={i} className="bg-surface rounded-2xl p-5 animate-pulse">
+              <div className="h-6 bg-surface-elevated rounded mb-3"></div>
               <div className="space-y-3">
-                <div className="h-4 bg-gray-700 rounded"></div>
-                <div className="h-4 bg-gray-700 rounded"></div>
-                <div className="h-4 bg-gray-700 rounded"></div>
+                <div className="h-4 bg-surface-elevated rounded"></div>
+                <div className="h-4 bg-surface-elevated rounded"></div>
+                <div className="h-4 bg-surface-elevated rounded"></div>
               </div>
             </div>
           ))}
@@ -100,25 +99,20 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Weight</h2>
+        <h2 className="text-2xl font-bold text-text-primary">Your Workouts</h2>
         <button
           onClick={handleNewSession}
-          className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          className="flex items-center px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors min-h-[44px] shadow-lg shadow-blue-500/25"
         >
           <PlusCircleIcon className="h-5 w-5 mr-2" />
           New Session
         </button>
       </div>
-      {/* Weight Summary */}
-      <div className="mb-6">
-        <WeightSummary />
-      </div>
 
       <div className="space-y-8">
-        <h2 className="text-xl font-bold text-white">Workouts</h2>
         {workouts.length === 0 ? (
-          <div className="text-center text-gray-400 py-12">
-            <DumbbellIcon className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+          <div className="text-center text-text-muted py-12">
+            <DumbbellIcon className="h-12 w-12 mx-auto mb-4 text-text-muted" />
             <p>No workouts yet. Create your first session!</p>
           </div>
         ) : (
@@ -128,11 +122,11 @@ const Dashboard = ({ workouts = [], isLoading, openHistoryModal }) => {
 
             return years.map((year) => (
               <div key={year} className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-300">{year}</h3>
+                <h3 className="text-lg font-semibold text-text-secondary">{year}</h3>
                 {Object.entries(groupedWorkouts[year]).map(
                   ([month, monthWorkouts]) => (
                     <div key={`${year}-${month}`} className="space-y-4">
-                      <h4 className="text-md font-medium text-gray-400">
+                      <h4 className="text-md font-medium text-text-muted">
                         {month}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

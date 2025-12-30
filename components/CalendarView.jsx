@@ -75,7 +75,7 @@ const CalendarView = ({ onClose }) => {
         <p className="text-red-400 mb-4">Failed to load calendar data</p>
         <button
           onClick={onClose}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          className="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors min-h-[44px]"
         >
           Close
         </button>
@@ -84,12 +84,12 @@ const CalendarView = ({ onClose }) => {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
+    <div className="bg-surface rounded-2xl p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-white">Workout Calendar</h2>
+        <h2 className="text-xl font-semibold text-text-primary">Workout Calendar</h2>
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-text-muted hover:text-text-primary transition-colors"
         >
           ✕
         </button>
@@ -97,7 +97,7 @@ const CalendarView = ({ onClose }) => {
 
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
         </div>
       ) : (
         <div
@@ -176,7 +176,7 @@ const CalendarView = ({ onClose }) => {
         </div>
       )}
 
-      <div className="mt-4 text-sm text-gray-400 text-center">
+      <div className="mt-4 text-sm text-text-muted text-center">
         Click on a day with workouts to view details
       </div>
     </div>

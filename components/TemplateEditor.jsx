@@ -172,12 +172,12 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
         <div className="flex items-center gap-4">
           <button
             onClick={onCancel}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-text-muted hover:text-text-primary transition-colors"
             disabled={isSubmitting}
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-text-primary">
             {template?.id ? 'Edit Template' : 'Create Template'}
           </h1>
         </div>
@@ -185,19 +185,19 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Template Details */}
-        <div className="bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Template Details</h2>
-          
+        <div className="bg-surface rounded-2xl p-6">
+          <h2 className="text-xl font-semibold text-text-primary mb-4">Template Details</h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Template Name *
               </label>
               <input
                 type="text"
                 value={templateData.name}
                 onChange={(e) => handleTemplateChange('name', e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
                 placeholder="e.g., My Custom Push Day"
                 disabled={isSubmitting}
               />
@@ -205,16 +205,16 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                 <p className="text-red-400 text-sm mt-1">{errors.name}</p>
               )}
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Description
               </label>
               <input
                 type="text"
                 value={templateData.description}
                 onChange={(e) => handleTemplateChange('description', e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
                 placeholder="Brief description of this template"
                 disabled={isSubmitting}
               />
@@ -223,13 +223,13 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
         </div>
 
         {/* Exercises */}
-        <div className="bg-gray-800 rounded-xl p-6">
+        <div className="bg-surface rounded-2xl p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-white">Exercises</h2>
+            <h2 className="text-xl font-semibold text-text-primary">Exercises</h2>
             <button
               type="button"
               onClick={addExercise}
-              className="flex items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center px-3 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors disabled:opacity-50"
               disabled={isSubmitting}
             >
               <PlusIcon className="h-4 w-4 mr-1" />
@@ -243,7 +243,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
 
           <div className="space-y-4">
             {templateData.exercises.map((exercise, exerciseIndex) => (
-              <div key={exercise.id} className="bg-gray-700 rounded-lg p-4">
+              <div key={exercise.id} className="bg-surface-elevated rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   {/* Drag handle and order controls */}
                   <div className="flex flex-col gap-1">
@@ -251,27 +251,27 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                       type="button"
                       onClick={() => moveExercise(exercise.id, 'up')}
                       disabled={exerciseIndex === 0 || isSubmitting}
-                      className="p-1 text-gray-400 hover:text-white disabled:opacity-30 transition-colors"
+                      className="p-1 text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
                     >
                       ▲
                     </button>
-                    <GripVerticalIcon className="h-4 w-4 text-gray-500" />
+                    <GripVerticalIcon className="h-4 w-4 text-text-muted" />
                     <button
                       type="button"
                       onClick={() => moveExercise(exercise.id, 'down')}
                       disabled={exerciseIndex === templateData.exercises.length - 1 || isSubmitting}
-                      className="p-1 text-gray-400 hover:text-white disabled:opacity-30 transition-colors"
+                      className="p-1 text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
                     >
                       ▼
                     </button>
                   </div>
-                  
+
                   <div className="flex-1">
                     <input
                       type="text"
                       value={exercise.name}
                       onChange={(e) => updateExercise(exercise.id, 'name', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
                       placeholder="Exercise name"
                       disabled={isSubmitting}
                     />
@@ -281,7 +281,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                       </p>
                     )}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={() => removeExercise(exercise.id)}
@@ -295,14 +295,14 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                 {/* Exercise defaults */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-text-muted mb-1">
                       Default Sets *
                     </label>
                     <input
                       type="number"
                       value={exercise.defaultSets}
                       onChange={(e) => updateExercise(exercise.id, 'defaultSets', e.target.value)}
-                      className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       min="1"
                       disabled={isSubmitting}
                     />
@@ -312,16 +312,16 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-text-muted mb-1">
                       Default Reps *
                     </label>
                     <input
                       type="number"
                       value={exercise.defaultReps}
                       onChange={(e) => updateExercise(exercise.id, 'defaultReps', e.target.value)}
-                      className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       min="1"
                       disabled={isSubmitting}
                     />
@@ -331,45 +331,45 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-text-muted mb-1">
                       Target Rep Range
                     </label>
                     <input
                       type="text"
                       value={exercise.targetRepRange}
                       onChange={(e) => updateExercise(exercise.id, 'targetRepRange', e.target.value)}
-                      className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       placeholder="8-12, AMRAP, etc."
                       disabled={isSubmitting}
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-text-muted mb-1">
                       Default Weight (kg)
                     </label>
                     <input
                       type="number"
                       value={exercise.defaultWeight}
                       onChange={(e) => updateExercise(exercise.id, 'defaultWeight', e.target.value)}
-                      className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       step="0.5"
                       min="0"
                       disabled={isSubmitting}
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-text-muted mb-1">
                       Rest (seconds)
                     </label>
                     <input
                       type="number"
                       value={exercise.restSeconds}
                       onChange={(e) => updateExercise(exercise.id, 'restSeconds', e.target.value)}
-                      className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       min="0"
                       disabled={isSubmitting}
                     />
@@ -382,7 +382,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     type="text"
                     value={exercise.notes}
                     onChange={(e) => updateExercise(exercise.id, 'notes', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                     placeholder="Exercise notes (optional)"
                     disabled={isSubmitting}
                   />
@@ -397,7 +397,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-surface-elevated hover:bg-surface-highlight text-text-primary rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
             disabled={isSubmitting}
           >
             Cancel
@@ -405,7 +405,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex items-center px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg transition-colors"
+            className="flex items-center px-6 py-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-lg transition-colors min-h-[44px]"
           >
             <SaveIcon className="h-4 w-4 mr-2" />
             {isSubmitting ? 'Saving...' : 'Save Template'}

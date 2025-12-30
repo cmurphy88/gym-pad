@@ -1,5 +1,47 @@
 @import 'tailwindcss';
 
+/* ============================================
+   DESIGN SYSTEM THEME VARIABLES
+   ============================================ */
+:root {
+  /* Backgrounds */
+  --bg: #0D0D0D;
+  --surface: #141414;
+  --surface-elevated: #1A1A1A;
+  --surface-highlight: #252526;
+
+  /* Text */
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+
+  /* Borders & Accents */
+  --border: #27272A;
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+
+  /* RPE Scale */
+  --rpe-6: #10B981;
+  --rpe-7: #FBBF24;
+  --rpe-8: #F97316;
+  --rpe-9: #EF4444;
+  --rpe-10: #DC2626;
+
+  /* Semantic Colors */
+  --success: #10B981;
+  --warning: #FBBF24;
+  --error: #EF4444;
+}
+
+/* Tabular numbers for weight/rep alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
 /* Prevent mobile zoom on input focus */
 input[type='text'],
 input[type='number'],
@@ -39,25 +81,14 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--accent);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+/* Dark mode only - no light mode support */
 
 #root {
   min-height: 100vh;
@@ -74,10 +105,10 @@ button:focus-visible {
 
 .calendar-container .rdp {
   --rdp-cell-size: 48px;
-  --rdp-accent-color: #9333ea;
-  --rdp-background-color: #374151;
+  --rdp-accent-color: var(--accent);
+  --rdp-background-color: var(--surface-elevated);
   margin: 0;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .calendar-container .rdp-months {
@@ -133,8 +164,8 @@ button:focus-visible {
 }
 
 .calendar-container .rdp-nav_button:hover {
-  background-color: #374151;
-  color: #ffffff;
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
 }
 
 .calendar-container .rdp-nav_button:disabled {
@@ -187,13 +218,13 @@ button:focus-visible {
 }
 
 .calendar-container .rdp-cell[data-has-workouts='true'] .rdp-button {
-  background-color: rgba(147, 51, 234, 0.2);
-  border: 1px solid rgba(147, 51, 234, 0.4);
+  background-color: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 .calendar-container .rdp-cell[data-has-workouts='true'] .rdp-button:hover {
-  background-color: rgba(147, 51, 234, 0.3);
-  border-color: rgba(147, 51, 234, 0.6);
+  background-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.6);
 }
 
 .calendar-container .rdp-button {
@@ -213,23 +244,23 @@ button:focus-visible {
 }
 
 .calendar-container .rdp-button:hover {
-  background-color: #374151;
-  color: #ffffff;
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
 }
 
 .calendar-container .rdp-day_today .rdp-button {
-  background-color: #374151;
-  color: #ffffff;
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .calendar-container .rdp-day_selected .rdp-button {
-  background-color: #9333ea;
-  color: #ffffff;
+  background-color: var(--accent);
+  color: var(--text-primary);
 }
 
 .calendar-container .rdp-day_selected .rdp-button:hover {
-  background-color: #7c3aed;
+  background-color: var(--accent-hover);
 }
 
 .calendar-container .rdp-day_outside .rdp-button {
@@ -238,23 +269,23 @@ button:focus-visible {
 }
 
 .calendar-container .has-workout-day {
-  background-color: #7c3aed !important;
-  border: 2px solid #9333ea !important;
-  color: #ffffff !important;
+  background-color: var(--accent) !important;
+  border: 2px solid var(--accent-hover) !important;
+  color: var(--text-primary) !important;
   font-weight: bold !important;
   position: relative;
 }
 
 .calendar-container .has-workout-day:hover {
-  background-color: #6d28d9 !important;
-  border-color: #7c3aed !important;
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent) !important;
 }
 
 /* Target the button inside workout days */
 .calendar-container .has-workout-day .rdp-day_button {
-  background-color: #7c3aed !important;
-  border: 2px solid #9333ea !important;
-  color: #ffffff !important;
+  background-color: var(--accent) !important;
+  border: 2px solid var(--accent-hover) !important;
+  color: var(--text-primary) !important;
   font-weight: bold !important;
   position: relative;
   padding: 2px !important;
@@ -279,7 +310,7 @@ button:focus-visible {
 
 .calendar-container .has-workout-day .workout-info {
   font-size: 8px;
-  color: #e9d5ff;
+  color: #BFDBFE;
   text-align: center;
   max-width: 100%;
   overflow: hidden;

@@ -78,7 +78,8 @@ export async function POST(request) {
           templateId: data.templateId,
           title: data.title.trim(),
           date: new Date(data.date),
-          notes: data.notes?.trim() || null
+          notes: data.notes?.trim() || null,
+          status: data.status || 'COMPLETED'
         }
       })
 

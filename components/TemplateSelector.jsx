@@ -42,19 +42,19 @@ const TemplateSelector = ({ isOpen, onClose }) => {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75">
-      <div className="bg-gray-800 rounded-xl w-full max-w-2xl max-h-[80vh] overflow-hidden mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="bg-[#1c1c1e] rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden mx-4 border border-[#3a3a3c]">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-700">
+        <div className="flex justify-between items-center p-6 border-b border-border">
           <div>
-            <h2 className="text-2xl font-bold text-white">Choose Template</h2>
-            <p className="text-gray-400 mt-1">
+            <h2 className="text-2xl font-bold text-text-primary">Choose Template</h2>
+            <p className="text-text-muted mt-1">
               Select a template or start with a blank session
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-text-muted hover:text-text-primary transition-colors"
           >
             <XIcon className="h-6 w-6" />
           </button>
@@ -64,15 +64,15 @@ const TemplateSelector = ({ isOpen, onClose }) => {
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {isLoading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
-              <p className="text-gray-400">Loading templates...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+              <p className="text-text-muted">Loading templates...</p>
             </div>
           ) : error ? (
             <div className="text-center py-8">
               <p className="text-red-400 mb-4">Failed to load templates</p>
               <button
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors min-h-[44px]"
               >
                 Retry
               </button>
@@ -82,23 +82,23 @@ const TemplateSelector = ({ isOpen, onClose }) => {
               {/* Blank Session Option */}
               <div
                 onClick={() => handleTemplateSelect(null)}
-                className="group p-4 bg-gray-700 rounded-lg border border-gray-600 hover:border-purple-500 cursor-pointer transition-all"
+                className="group p-4 bg-[#2c2c2e] rounded-xl border border-[#3a3a3c] hover:border-blue-500 cursor-pointer transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-600 rounded-lg group-hover:bg-purple-600 transition-colors">
+                    <div className="p-2 bg-[#3a3a3c] rounded-lg group-hover:bg-blue-500 transition-colors">
                       <PlusIcon className="h-5 w-5 text-gray-300 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-white">
+                      <h3 className="text-lg font-medium text-text-primary">
                         Blank Session
                       </h3>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-text-muted">
                         Start with an empty workout
                       </p>
                     </div>
                   </div>
-                  <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
+                  <ChevronRightIcon className="h-5 w-5 text-text-muted group-hover:text-accent" />
                 </div>
               </div>
 
@@ -108,30 +108,30 @@ const TemplateSelector = ({ isOpen, onClose }) => {
                   <div
                     key={template.id}
                     onClick={() => handleTemplateSelect(template)}
-                    className="group p-4 bg-gray-700 rounded-lg border border-gray-600 hover:border-purple-500 cursor-pointer transition-all"
+                    className="group p-4 bg-[#2c2c2e] rounded-xl border border-[#3a3a3c] hover:border-blue-500 cursor-pointer transition-all"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gray-600 rounded-lg group-hover:bg-purple-600 transition-colors">
+                        <div className="p-2 bg-[#3a3a3c] rounded-lg group-hover:bg-blue-500 transition-colors">
                           <DumbbellIcon className="h-5 w-5 text-gray-300 group-hover:text-white" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-medium text-white">
+                            <h3 className="text-lg font-medium text-text-primary">
                               {template.name}
                             </h3>
                             {template.isDefault && (
-                              <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
+                              <span className="px-2 py-1 bg-accent/20 text-blue-300 text-xs rounded-full">
                                 Default
                               </span>
                             )}
                           </div>
                           {template.description && (
-                            <p className="text-sm text-gray-400 mt-1">
+                            <p className="text-sm text-text-muted mt-1">
                               {template.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <div className="flex items-center gap-4 mt-2 text-xs text-text-muted">
                             <div className="flex items-center gap-1">
                               <FileTextIcon className="h-3 w-3" />
                               <span>
@@ -149,25 +149,25 @@ const TemplateSelector = ({ isOpen, onClose }) => {
                           </div>
                         </div>
                       </div>
-                      <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
+                      <ChevronRightIcon className="h-5 w-5 text-text-muted group-hover:text-accent" />
                     </div>
 
                     {/* Exercise Preview */}
                     {template.templateExercises.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-gray-600">
+                      <div className="mt-3 pt-3 border-t border-[#3a3a3c]">
                         <div className="flex flex-wrap gap-2">
                           {template.templateExercises
                             .slice(0, 4)
                             .map((exercise) => (
                               <span
                                 key={exercise.id}
-                                className="px-2 py-1 bg-gray-600 text-gray-300 text-xs rounded"
+                                className="px-2 py-1 bg-[#3a3a3c] text-gray-300 text-xs rounded"
                               >
                                 {exercise.exerciseName}
                               </span>
                             ))}
                           {template.templateExercises.length > 4 && (
-                            <span className="px-2 py-1 bg-gray-600 text-gray-400 text-xs rounded">
+                            <span className="px-2 py-1 bg-[#3a3a3c] text-gray-400 text-xs rounded">
                               +{template.templateExercises.length - 4} more
                             </span>
                           )}
@@ -180,23 +180,23 @@ const TemplateSelector = ({ isOpen, onClose }) => {
               {/* Create New Template Option */}
               <div
                 onClick={handleCreateTemplate}
-                className="group p-4 bg-gray-700 rounded-lg border border-gray-600 border-dashed hover:border-purple-500 cursor-pointer transition-all"
+                className="group p-4 bg-[#2c2c2e] rounded-xl border border-[#3a3a3c] border-dashed hover:border-blue-500 cursor-pointer transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-600 rounded-lg group-hover:bg-purple-600 transition-colors">
+                    <div className="p-2 bg-[#3a3a3c] rounded-lg group-hover:bg-blue-500 transition-colors">
                       <PlusIcon className="h-5 w-5 text-gray-300 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-white">
+                      <h3 className="text-lg font-medium text-text-primary">
                         Create New Template
                       </h3>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-text-muted">
                         Build a custom workout template
                       </p>
                     </div>
                   </div>
-                  <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
+                  <ChevronRightIcon className="h-5 w-5 text-text-muted group-hover:text-accent" />
                 </div>
               </div>
 
@@ -206,23 +206,23 @@ const TemplateSelector = ({ isOpen, onClose }) => {
                   router.push('/templates')
                   onClose()
                 }}
-                className="group p-4 bg-gray-700 rounded-lg border border-gray-600 border-dashed hover:border-blue-500 cursor-pointer transition-all"
+                className="group p-4 bg-[#2c2c2e] rounded-xl border border-[#3a3a3c] border-dashed hover:border-blue-500 cursor-pointer transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-600 rounded-lg group-hover:bg-blue-600 transition-colors">
+                    <div className="p-2 bg-[#3a3a3c] rounded-lg group-hover:bg-blue-500 transition-colors">
                       <FileTextIcon className="h-5 w-5 text-gray-300 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-white">
+                      <h3 className="text-lg font-medium text-text-primary">
                         Manage All Templates
                       </h3>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-text-muted">
                         View, edit, and organize templates
                       </p>
                     </div>
                   </div>
-                  <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-blue-400" />
+                  <ChevronRightIcon className="h-5 w-5 text-text-muted group-hover:text-accent" />
                 </div>
               </div>
             </div>

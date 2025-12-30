@@ -4,7 +4,7 @@ This document describes the database schema for the Gym Pad application using Po
 
 ## Overview
 
-The database consists of 8 main tables that handle user authentication, workout tracking, session templates, and weight monitoring.
+The database consists of 6 main tables that handle user authentication, workout tracking, and session templates.
 
 ## Database Diagram
 
@@ -12,14 +12,12 @@ The database consists of 8 main tables that handle user authentication, workout 
 erDiagram
     User ||--o{ Session : "has many"
     User ||--o{ Workout : "creates"
-    User ||--o{ WeightEntry : "tracks"
-    User ||--o{ WeightGoal : "sets"
-    
+
     Workout ||--o{ Exercise : "contains"
     Workout ||--o{ WorkoutExerciseSwap : "has swaps"
-    
+
     SessionTemplate ||--o{ TemplateExercise : "defines"
-    
+
     User {
         int id PK
         string name
@@ -27,7 +25,7 @@ erDiagram
         string password
         datetime created_at
     }
-    
+
     Session {
         string id PK
         int user_id FK
@@ -35,7 +33,7 @@ erDiagram
         datetime expires_at
         datetime created_at
     }
-    
+
     Workout {
         int id PK
         int user_id FK
@@ -44,10 +42,11 @@ erDiagram
         datetime date
         int duration
         string notes
+        WorkoutStatus status
         datetime created_at
         datetime updated_at
     }
-    
+
     Exercise {
         int id PK
         int workout_id FK
@@ -58,7 +57,7 @@ erDiagram
         int order_index
         datetime created_at
     }
-    
+
     SessionTemplate {
         int id PK
         string name UK
@@ -67,7 +66,7 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     TemplateExercise {
         int id PK
         int template_id FK
@@ -81,7 +80,7 @@ erDiagram
         string target_rep_range
         datetime created_at
     }
-    
+
     ExerciseTemplate {
         int id PK
         string name UK
@@ -90,7 +89,7 @@ erDiagram
         string instructions
         datetime created_at
     }
-    
+
     WorkoutExerciseSwap {
         int id PK
         int workout_id FK
@@ -98,26 +97,6 @@ erDiagram
         string swapped_exercise_name
         string reason
         datetime created_at
-    }
-    
-    WeightEntry {
-        int id PK
-        int user_id FK
-        float weight
-        datetime date
-        datetime created_at
-        datetime updated_at
-    }
-    
-    WeightGoal {
-        int id PK
-        int user_id FK
-        float target_weight
-        string goal_type
-        datetime target_date
-        boolean is_active
-        datetime created_at
-        datetime updated_at
     }
 ```
 
@@ -136,8 +115,6 @@ Stores user account information and credentials.
 **Relationships:**
 - One-to-many with Session (user sessions)
 - One-to-many with Workout (user's workouts)
-- One-to-many with WeightEntry (weight tracking)
-- One-to-many with WeightGoal (weight goals)
 
 ### Session
 Manages user authentication sessions with secure tokens.
@@ -163,6 +140,7 @@ Stores individual workout sessions.
 - `date`: When the workout was performed
 - `duration`: Workout duration in seconds
 - `notes`: Optional workout notes
+- `status`: Workout status (see WorkoutStatus enum below)
 - `created_at`: Record creation timestamp
 - `updated_at`: Last modification timestamp
 
@@ -170,6 +148,12 @@ Stores individual workout sessions.
 - Many-to-one with User (workout owner)
 - One-to-many with Exercise (workout exercises)
 - One-to-many with WorkoutExerciseSwap (exercise substitutions)
+
+### WorkoutStatus Enum
+Defines the possible states of a workout:
+- `COMPLETED` - Default state for logged workouts
+- `CANCELLED` - Workout was cancelled or skipped
+- `DRAFT` - Workout is saved but not yet completed
 
 ### Exercise
 Stores individual exercises within a workout.
@@ -253,36 +237,6 @@ Tracks when exercises are substituted during workouts.
 **Relationships:**
 - Many-to-one with Workout (parent workout)
 
-### WeightEntry
-Tracks user weight measurements over time.
-
-**Columns:**
-- `id` (Primary Key): Auto-incrementing identifier
-- `user_id` (Foreign Key): References User.id
-- `weight`: Weight measurement (float for precision)
-- `date`: Date of the measurement
-- `created_at`: Record creation timestamp
-- `updated_at`: Last modification timestamp
-
-**Relationships:**
-- Many-to-one with User (weight owner)
-
-### WeightGoal
-Stores user weight goals and targets.
-
-**Columns:**
-- `id` (Primary Key): Auto-incrementing identifier
-- `user_id` (Foreign Key): References User.id
-- `target_weight`: Target weight goal
-- `goal_type`: Type of goal ("weight_loss", "weight_gain", "maintenance")
-- `target_date`: Optional target completion date
-- `is_active`: Whether the goal is currently active
-- `created_at`: Record creation timestamp
-- `updated_at`: Last modification timestamp
-
-**Relationships:**
-- Many-to-one with User (goal owner)
-
 ## Indexes
 
 The following indexes are automatically created by Prisma:
@@ -297,7 +251,7 @@ The following indexes are automatically created by Prisma:
 ### Foreign Key Constraints
 - All foreign key relationships include proper referential integrity
 - Cascade deletes are configured for dependent records:
-  - Deleting a User cascades to Sessions, WeightEntries, and WeightGoals
+  - Deleting a User cascades to Sessions
   - Deleting a Workout cascades to Exercises and WorkoutExerciseSwaps
   - Deleting a SessionTemplate cascades to TemplateExercises
 
@@ -311,19 +265,18 @@ The following indexes are automatically created by Prisma:
 The database schema has evolved through several migrations:
 
 1. **20250728123707_init**: Initial schema setup
-2. **20250731224000_add_auth_and_weight_tracking**: Added authentication and weight tracking
+2. **20250731224000_add_auth**: Added authentication
 3. **20250731224500_fix_cascade_constraints**: Fixed cascade delete constraints
 
 ## Performance Considerations
 
 ### Query Optimization
 - Foreign key indexes optimize JOIN operations
-- Date fields on Workout and WeightEntry support time-based queries
+- Date fields on Workout support time-based queries
 - Order indexes on Exercise and TemplateExercise optimize sorting
 
 ### Data Storage
 - Sets data is stored as JSON for flexibility
-- Weight measurements use FLOAT for precision
 - Text fields use appropriate VARCHAR lengths
 
 ## Backup and Recovery
@@ -336,7 +289,6 @@ The database schema has evolved through several migrations:
 ### Data Retention
 - Session tokens expire automatically
 - Historical workout data is preserved indefinitely
-- Weight tracking maintains complete history
 
 ## Security Considerations
 

@@ -51,16 +51,16 @@ const ExerciseItem = ({ exercise, onClick }) => {
 
   return (
     <div
-      className="flex items-center justify-between p-3 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-colors"
+      className="flex items-center justify-between p-3 bg-surface-elevated rounded-lg cursor-pointer hover:bg-surface-highlight transition-colors"
       onClick={() => onClick && onClick(exercise.name)}
     >
       <div className="flex-1">
-        <h4 className="font-medium text-white">{exercise.name}</h4>
-        <p className="text-sm text-gray-400">
+        <h4 className="font-medium text-text-primary">{exercise.name}</h4>
+        <p className="text-sm text-text-muted tabular-nums">
           {formatSetsDisplay(exercise.sets)}
         </p>
       </div>
-      <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+      <ChevronRightIcon className="h-5 w-5 text-text-muted" />
     </div>
   )
 }

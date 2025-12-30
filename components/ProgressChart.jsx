@@ -70,13 +70,13 @@ const ProgressChart = ({ history }) => {
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#1f2937',
-            borderColor: '#374151',
-            borderRadius: '0.375rem',
-            color: '#f3f4f6',
+            backgroundColor: '#141414',
+            borderColor: '#27272A',
+            borderRadius: '0.5rem',
+            color: '#F9FAFB',
           }}
           labelStyle={{
-            color: '#e5e7eb',
+            color: '#9CA3AF',
             fontWeight: 'bold',
           }}
           formatter={(value, name) => [`${value} kg`, 'Weight']}
@@ -84,19 +84,19 @@ const ProgressChart = ({ history }) => {
         <Line
           type="monotone"
           dataKey="maxWeight"
-          stroke="#8b5cf6"
+          stroke="#3B82F6"
           strokeWidth={2}
           dot={{
-            stroke: '#8b5cf6',
+            stroke: '#3B82F6',
             strokeWidth: 2,
             r: 4,
-            fill: '#1f2937',
+            fill: '#141414',
           }}
           activeDot={{
             r: 6,
-            stroke: '#8b5cf6',
+            stroke: '#3B82F6',
             strokeWidth: 2,
-            fill: '#8b5cf6',
+            fill: '#3B82F6',
           }}
         />
       </LineChart>

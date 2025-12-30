@@ -95,8 +95,8 @@ const TemplateGuidance = ({ exercise }) => {
           {exercise.targetRepRange && (
             <div className="flex items-center space-x-2 text-sm pt-2">
               <TargetIcon className="h-3 w-3 text-blue-400 flex-shrink-0" />
-              <span className="text-gray-300">Target:</span>
-              <span className="text-blue-200 font-medium">
+              <span className="text-text-secondary">Target:</span>
+              <span className="text-blue-200 font-medium tabular-nums">
                 {exercise.targetRepRange} reps
               </span>
             </div>
@@ -105,9 +105,9 @@ const TemplateGuidance = ({ exercise }) => {
           {/* Rest Time */}
           {exercise.restSeconds && (
             <div className="flex items-center space-x-2 text-sm">
-              <ClockIcon className="h-3 w-3 text-green-400 flex-shrink-0" />
-              <span className="text-gray-300">Rest:</span>
-              <span className="text-green-200 font-medium">
+              <ClockIcon className="h-3 w-3 text-emerald-400 flex-shrink-0" />
+              <span className="text-text-secondary">Rest:</span>
+              <span className="text-emerald-200 font-medium tabular-nums">
                 {formatRestTime(exercise.restSeconds)}
               </span>
             </div>
@@ -116,19 +116,19 @@ const TemplateGuidance = ({ exercise }) => {
           {/* Exercise History */}
           {exerciseHistory.length > 0 && (
             <div className="flex items-start space-x-2 text-sm">
-              <HistoryIcon className="h-3 w-3 text-purple-400 flex-shrink-0 mt-0.5" />
+              <HistoryIcon className="h-3 w-3 text-accent flex-shrink-0 mt-0.5" />
               <div className="space-y-2">
                 {exerciseHistory.map((session, index) => (
                   <div key={index}>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-300">
+                      <span className="text-text-secondary">
                         {index === 0 ? 'Last time:' : 'Before that:'}
                       </span>
-                      <span className="text-purple-200 font-medium">
+                      <span className="text-blue-200 font-medium tabular-nums">
                         {session.performance}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-text-muted">
                       {new Date(session.date).toLocaleDateString()}
                     </div>
                   </div>
@@ -142,39 +142,41 @@ const TemplateGuidance = ({ exercise }) => {
             <div className="text-sm pt-2 border-t border-blue-700/20">
               <div className="flex items-center space-x-2 mb-2">
                 <TrendingUpIcon className="h-3 w-3 text-orange-400 flex-shrink-0" />
-                <span className="text-gray-300 font-medium">Auto-Regulation</span>
+                <span className="text-text-secondary font-medium">Auto-Regulation</span>
               </div>
-              
+
               <div className="space-y-1 ml-5">
                 {/* Last Session RPE */}
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-400">Last RPE:</span>
-                  <span className={`font-medium ${
-                    rpeAnalysis.lastSessionRPE <= 7 ? 'text-green-400' :
-                    rpeAnalysis.lastSessionRPE <= 8.5 ? 'text-yellow-400' :
-                    'text-red-400'
+                  <span className="text-text-muted">Last RPE:</span>
+                  <span className={`font-medium tabular-nums ${
+                    rpeAnalysis.lastSessionRPE <= 6 ? 'text-emerald-500' :
+                    rpeAnalysis.lastSessionRPE === 7 ? 'text-amber-400' :
+                    rpeAnalysis.lastSessionRPE === 8 ? 'text-orange-500' :
+                    rpeAnalysis.lastSessionRPE === 9 ? 'text-red-500' :
+                    'text-red-600'
                   }`}>
                     {rpeAnalysis.lastSessionRPE}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-text-muted">
                     ({rpeAnalysis.analysis.fatigue} fatigue)
                   </span>
                 </div>
 
                 {/* Recommendation */}
                 {rpeAnalysis.recommendation && (
-                  <div className="bg-gray-800/50 rounded p-2 mt-2">
+                  <div className="bg-surface-elevated rounded p-2 mt-2">
                     <div className="flex items-start space-x-2">
                       <AlertCircleIcon className="h-3 w-3 text-orange-400 flex-shrink-0 mt-0.5" />
                       <div className="space-y-1">
                         <div className="text-xs text-orange-200 font-medium">
                           Recommendation:
                         </div>
-                        <div className="text-xs text-gray-300">
+                        <div className="text-xs text-text-secondary">
                           {rpeAnalysis.recommendation.message}
                         </div>
                         {(rpeAnalysis.recommendation.weightChange !== 0 || rpeAnalysis.recommendation.repChange !== 0) && (
-                          <div className="text-xs space-y-0.5">
+                          <div className="text-xs space-y-0.5 tabular-nums">
                             {rpeAnalysis.recommendation.weightChange !== 0 && (
                               <div className="text-blue-300">
                                 Weight: {rpeAnalysis.recommendation.weightChange > 0 ? '+' : ''}
@@ -182,13 +184,13 @@ const TemplateGuidance = ({ exercise }) => {
                               </div>
                             )}
                             {rpeAnalysis.recommendation.repChange !== 0 && (
-                              <div className="text-purple-300">
+                              <div className="text-accent">
                                 Reps: {rpeAnalysis.recommendation.repChange > 0 ? '+' : ''}
                                 {rpeAnalysis.recommendation.repChange}
                               </div>
                             )}
                             {rpeAnalysis.recommendation.targetRPE && (
-                              <div className="text-yellow-300">
+                              <div className="text-amber-300">
                                 Target RPE: {rpeAnalysis.recommendation.targetRPE}
                               </div>
                             )}
@@ -205,8 +207,8 @@ const TemplateGuidance = ({ exercise }) => {
           {/* Exercise Notes */}
           {exercise.notes && (
             <div className="text-sm pt-1 border-t border-blue-700/20">
-              <span className="text-gray-300">Notes:</span>
-              <span className="text-gray-200 ml-1">{exercise.notes}</span>
+              <span className="text-text-secondary">Notes:</span>
+              <span className="text-text-primary ml-1">{exercise.notes}</span>
             </div>
           )}
         </div>

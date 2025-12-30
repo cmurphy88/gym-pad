@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  validateWorkout, 
-  validateExercise, 
-  validateWeightEntry,
-  validateWeightGoal,
+import {
+  validateWorkout,
+  validateExercise,
   sanitizeInput
 } from '@/lib/validations';
 
@@ -180,79 +178,9 @@ describe('Validation Functions', () => {
       };
 
       const result = validateExercise(exerciseWithInvalidRPE);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('Set 1: RPE must be an integer between 1 and 10');
-    });
-  });
-
-  describe('validateWeightEntry', () => {
-    it('should validate correct weight entry', () => {
-      const validEntry = {
-        weight: 180.5,
-        date: '2025-01-01T10:00:00Z'
-      };
-
-      const result = validateWeightEntry(validEntry);
-      
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
-
-    it('should reject weight entry with negative weight', () => {
-      const invalidEntry = {
-        weight: -5,
-        date: '2025-01-01T10:00:00Z'
-      };
-
-      const result = validateWeightEntry(invalidEntry);
-      
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Weight is required and must be a positive number');
-    });
-
-    it('should reject weight entry with excessive weight', () => {
-      const invalidEntry = {
-        weight: 1500,
-        date: '2025-01-01T10:00:00Z'
-      };
-
-      const result = validateWeightEntry(invalidEntry);
-      
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Weight must be less than 1000 kg');
-    });
-  });
-
-  describe('validateWeightGoal', () => {
-    it('should validate correct weight goal', () => {
-      // Use a date that's definitely in the future
-      const futureDate = new Date();
-      futureDate.setFullYear(futureDate.getFullYear() + 1);
-      
-      const validGoal = {
-        targetWeight: 175,
-        goalType: 'lose',
-        targetDate: futureDate.toISOString()
-      };
-
-      const result = validateWeightGoal(validGoal);
-      
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
-
-    it('should reject invalid goal type', () => {
-      const invalidGoal = {
-        targetWeight: 175,
-        goalType: 'invalid',
-        targetDate: '2025-06-01T00:00:00Z'
-      };
-
-      const result = validateWeightGoal(invalidGoal);
-      
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Goal type must be either "lose" or "gain"');
     });
   });
 

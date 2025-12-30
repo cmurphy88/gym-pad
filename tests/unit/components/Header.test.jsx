@@ -79,9 +79,8 @@ describe('Header Component', () => {
 
     it('renders navigation buttons', () => {
       render(<Header />);
-      
+
       expect(screen.getByTitle('Manage Templates')).toBeInTheDocument();
-      expect(screen.getByTitle('Weight Tracking')).toBeInTheDocument();
       expect(screen.getByTitle('View Calendar')).toBeInTheDocument();
     });
 
@@ -127,21 +126,11 @@ describe('Header Component', () => {
     it('navigates to templates when templates button is clicked', async () => {
       const user = userEvent.setup();
       render(<Header />);
-      
+
       const templatesButton = screen.getByTitle('Manage Templates');
       await user.click(templatesButton);
-      
-      expect(mockPush).toHaveBeenCalledWith('/templates');
-    });
 
-    it('navigates to weight tracking when weight button is clicked', async () => {
-      const user = userEvent.setup();
-      render(<Header />);
-      
-      const weightButton = screen.getByTitle('Weight Tracking');
-      await user.click(weightButton);
-      
-      expect(mockPush).toHaveBeenCalledWith('/weight');
+      expect(mockPush).toHaveBeenCalledWith('/templates');
     });
 
     it('opens calendar modal when calendar button is clicked', async () => {
@@ -266,9 +255,8 @@ describe('Header Component', () => {
   describe('Accessibility', () => {
     it('has proper button titles for screen readers', () => {
       render(<Header />);
-      
+
       expect(screen.getByTitle('Manage Templates')).toBeInTheDocument();
-      expect(screen.getByTitle('Weight Tracking')).toBeInTheDocument();
       expect(screen.getByTitle('View Calendar')).toBeInTheDocument();
       expect(screen.getByTitle('Test User')).toBeInTheDocument();
     });
@@ -301,10 +289,10 @@ describe('Header Component', () => {
   describe('Icons', () => {
     it('renders all required icons', () => {
       render(<Header />);
-      
+
       // Check that all icons are rendered (they should be SVG elements)
       const svgs = document.querySelectorAll('svg');
-      expect(svgs.length).toBeGreaterThanOrEqual(5); // DumbbellIcon, SettingsIcon, ScaleIcon, CalendarIcon, UserIcon
+      expect(svgs.length).toBeGreaterThanOrEqual(4); // DumbbellIcon, SettingsIcon, CalendarIcon, UserIcon
     });
   });
 

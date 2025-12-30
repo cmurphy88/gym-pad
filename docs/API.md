@@ -102,6 +102,7 @@ Get all workouts for the authenticated user.
       "date": "2025-01-01T10:00:00Z",
       "duration": 3600,
       "notes": "string",
+      "status": "COMPLETED",
       "exercises": [
         {
           "id": 1,
@@ -127,6 +128,7 @@ Create a new workout.
   "date": "2025-01-01T10:00:00Z",
   "duration": 3600,
   "notes": "string",
+  "status": "COMPLETED",
   "exercises": [
     {
       "name": "string",
@@ -139,6 +141,8 @@ Create a new workout.
 }
 ```
 
+Note: `status` is optional and defaults to `"COMPLETED"`. Valid values: `"COMPLETED"`, `"CANCELLED"`, `"DRAFT"`.
+
 **Response:**
 ```json
 {
@@ -147,7 +151,8 @@ Create a new workout.
     "title": "string",
     "date": "2025-01-01T10:00:00Z",
     "duration": 3600,
-    "notes": "string"
+    "notes": "string",
+    "status": "COMPLETED"
   }
 }
 ```
@@ -164,6 +169,7 @@ Get a specific workout by ID.
     "date": "2025-01-01T10:00:00Z",
     "duration": 3600,
     "notes": "string",
+    "status": "COMPLETED",
     "exercises": [
       {
         "id": 1,
@@ -188,6 +194,7 @@ Update a specific workout.
   "date": "2025-01-01T10:00:00Z",
   "duration": 3600,
   "notes": "string",
+  "status": "COMPLETED",
   "exercises": [
     {
       "name": "string",
@@ -200,6 +207,8 @@ Update a specific workout.
 }
 ```
 
+Note: `status` is optional. Valid values: `"COMPLETED"`, `"CANCELLED"`, `"DRAFT"`.
+
 **Response:**
 ```json
 {
@@ -208,7 +217,8 @@ Update a specific workout.
     "title": "string",
     "date": "2025-01-01T10:00:00Z",
     "duration": 3600,
-    "notes": "string"
+    "notes": "string",
+    "status": "COMPLETED"
   }
 }
 ```
@@ -227,21 +237,24 @@ Delete a specific workout.
 Get workout calendar data for a date range.
 
 **Query Parameters:**
-- `startDate`: ISO date string (required)
-- `endDate`: ISO date string (required)
+- `year` (optional): Year number (defaults to current year)
+- `month` (optional): Month number 1-12 (defaults to current month)
 
 **Response:**
 ```json
 {
-  "workouts": [
-    {
-      "id": 1,
-      "title": "string",
-      "date": "2025-01-01T10:00:00Z",
-      "duration": 3600,
-      "exerciseCount": 5
-    }
-  ]
+  "year": 2025,
+  "month": 1,
+  "workouts": {
+    "2025-01-01": [
+      {
+        "id": 1,
+        "title": "string",
+        "notes": "string",
+        "status": "COMPLETED"
+      }
+    ]
+  }
 }
 ```
 
@@ -253,9 +266,12 @@ Create a workout from a session template.
 {
   "templateId": 1,
   "date": "2025-01-01T10:00:00Z",
-  "title": "string"
+  "title": "string",
+  "status": "COMPLETED"
 }
 ```
+
+Note: `status` is optional and defaults to `"COMPLETED"`. Valid values: `"COMPLETED"`, `"CANCELLED"`, `"DRAFT"`.
 
 **Response:**
 ```json
@@ -264,7 +280,8 @@ Create a workout from a session template.
     "id": 1,
     "title": "string",
     "date": "2025-01-01T10:00:00Z",
-    "templateId": 1
+    "templateId": 1,
+    "status": "COMPLETED"
   }
 }
 ```
@@ -446,127 +463,6 @@ Get latest workout data for template exercises.
 }
 ```
 
-## Weight Tracking Endpoints
-
-#### GET /api/weight
-Get all weight entries for the authenticated user.
-
-**Query Parameters:**
-- `startDate` (optional): ISO date string
-- `endDate` (optional): ISO date string
-
-**Response:**
-```json
-{
-  "entries": [
-    {
-      "id": 1,
-      "weight": 180.5,
-      "date": "2025-01-01T10:00:00Z",
-      "createdAt": "2025-01-01T10:00:00Z"
-    }
-  ]
-}
-```
-
-#### POST /api/weight
-Create a new weight entry.
-
-**Request Body:**
-```json
-{
-  "weight": 180.5,
-  "date": "2025-01-01T10:00:00Z"
-}
-```
-
-**Response:**
-```json
-{
-  "entry": {
-    "id": 1,
-    "weight": 180.5,
-    "date": "2025-01-01T10:00:00Z"
-  }
-}
-```
-
-#### PUT /api/weight/[id]
-Update a specific weight entry.
-
-**Request Body:**
-```json
-{
-  "weight": 180.5,
-  "date": "2025-01-01T10:00:00Z"
-}
-```
-
-**Response:**
-```json
-{
-  "entry": {
-    "id": 1,
-    "weight": 180.5,
-    "date": "2025-01-01T10:00:00Z"
-  }
-}
-```
-
-#### DELETE /api/weight/[id]
-Delete a specific weight entry.
-
-**Response:**
-```json
-{
-  "success": true
-}
-```
-
-#### GET /api/weight/goal
-Get active weight goals for the authenticated user.
-
-**Response:**
-```json
-{
-  "goals": [
-    {
-      "id": 1,
-      "targetWeight": 175,
-      "goalType": "weight_loss",
-      "targetDate": "2025-06-01T00:00:00Z",
-      "isActive": true,
-      "createdAt": "2025-01-01T10:00:00Z"
-    }
-  ]
-}
-```
-
-#### POST /api/weight/goal
-Create a new weight goal.
-
-**Request Body:**
-```json
-{
-  "targetWeight": 175,
-  "goalType": "weight_loss",
-  "targetDate": "2025-06-01T00:00:00Z"
-}
-```
-
-**Response:**
-```json
-{
-  "goal": {
-    "id": 1,
-    "targetWeight": 175,
-    "goalType": "weight_loss",
-    "targetDate": "2025-06-01T00:00:00Z",
-    "isActive": true
-  }
-}
-```
-
 ## Error Responses
 
 All endpoints may return the following error responses:
@@ -608,6 +504,12 @@ All endpoints may return the following error responses:
 
 ## Data Types
 
+### Workout Status
+The `status` field indicates the state of a workout:
+- `COMPLETED` - Default state for logged workouts
+- `CANCELLED` - Workout was cancelled or skipped
+- `DRAFT` - Workout is saved but not yet completed
+
 ### Sets Data Format
 The `setsData` field is a JSON string containing an array of set objects:
 ```json
@@ -624,11 +526,6 @@ The `setsData` field is a JSON string containing an array of set objects:
   }
 ]
 ```
-
-### Goal Types
-- `weight_loss`: Target weight is lower than current
-- `weight_gain`: Target weight is higher than current
-- `maintenance`: Target weight is similar to current
 
 ## Rate Limiting
 

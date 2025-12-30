@@ -8,6 +8,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
     title: '',
     date: new Date().toISOString().split('T')[0], // Today's date
     notes: '',
+    status: 'COMPLETED',
     exercises: [],
   })
 
@@ -153,6 +154,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
       title: workoutData.title.trim(),
       date: workoutData.date,
       notes: workoutData.notes.trim() || null,
+      status: workoutData.status,
       exercises: workoutData.exercises.map((exercise, index) => ({
         name: exercise.name.trim(),
         sets: exercise.sets.map((set) => ({
@@ -178,14 +180,14 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Workout Details */}
-      <div className="bg-gray-800 rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">
+      <div className="bg-surface rounded-2xl p-6">
+        <h2 className="text-xl font-semibold text-text-primary mb-4">
           Workout Details
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Workout Title *
             </label>
             <input
@@ -193,7 +195,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
               value={workoutData.title}
               onChange={(e) => handleWorkoutChange('title', e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
               placeholder="e.g., Push Day, Legs, etc."
             />
             {errors.title && (
@@ -202,23 +204,38 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Date *
             </label>
             <input
               type="date"
               value={workoutData.date}
               onChange={(e) => handleWorkoutChange('date', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
             />
             {errors.date && (
               <p className="text-red-400 text-sm mt-1">{errors.date}</p>
             )}
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              Status
+            </label>
+            <select
+              value={workoutData.status}
+              onChange={(e) => handleWorkoutChange('status', e.target.value)}
+              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
+            >
+              <option value="COMPLETED">Completed</option>
+              <option value="DRAFT">Draft</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             Notes
           </label>
           <input
@@ -226,20 +243,20 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
             value={workoutData.notes}
             onChange={(e) => handleWorkoutChange('notes', e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
             placeholder="How did it feel? Any observations?"
           />
         </div>
       </div>
 
       {/* Exercises */}
-      <div className="bg-gray-800 rounded-xl p-6">
+      <div className="bg-surface rounded-2xl p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white">Exercises</h2>
+          <h2 className="text-xl font-semibold text-text-primary">Exercises</h2>
           <button
             type="button"
             onClick={addExercise}
-            className="flex items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            className="flex items-center px-3 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors"
           >
             <PlusIcon className="h-4 w-4 mr-1" />
             Add Exercise
@@ -252,7 +269,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
 
         <div className="space-y-4">
           {workoutData.exercises.map((exercise, exerciseIndex) => (
-            <div key={exercise.id} className="bg-gray-700 rounded-lg p-4">
+            <div key={exercise.id} className="bg-surface-elevated rounded-xl p-4">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1 mr-4">
                   <input
@@ -262,7 +279,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                       updateExercise(exercise.id, 'name', e.target.value)
                     }
                     onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
                     placeholder="Exercise name"
                   />
                   {errors[`exercise_${exerciseIndex}_name`] && (
@@ -288,13 +305,13 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
               {/* Sets */}
               <div className="mb-3">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-300">
+                  <span className="text-sm font-medium text-text-secondary">
                     Sets
                   </span>
                   <button
                     type="button"
                     onClick={() => addSet(exercise.id)}
-                    className="text-sm text-purple-400 hover:text-purple-300"
+                    className="text-sm text-accent hover:text-accent-hover"
                   >
                     + Add Set
                   </button>
@@ -312,7 +329,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                     return (
                       <div key={setIndex} className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-400 w-8">
+                          <span className="text-sm text-text-muted w-8">
                             #{setIndex + 1}
                           </span>
                           <div className="flex-1">
@@ -328,7 +345,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                 )
                               }
                               onKeyDown={handleKeyDown}
-                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              className="w-full px-2 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                               placeholder="Weight (kg)"
                               step="0.5"
                               min="0"
@@ -347,7 +364,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                 )
                               }
                               onKeyDown={handleKeyDown}
-                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              className="w-full px-2 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                               placeholder="Reps"
                               min="1"
                             />
@@ -373,11 +390,11 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                             </button>
                           )}
                         </div>
-                        
+
                         {/* RPE Input - only show when weight and reps are filled */}
                         {hasWeightAndReps && (
                           <div className="ml-10 flex items-center gap-3">
-                            <span className="text-xs text-gray-400 w-8">RPE:</span>
+                            <span className="text-xs text-text-muted w-8">RPE:</span>
                             <div className="flex items-center gap-2">
                               <input
                                 type="number"
@@ -395,9 +412,9 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                                   )
                                 }
                                 onKeyDown={handleKeyDown}
-                                className="w-12 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                className="w-12 px-2 py-1 bg-surface-highlight border border-border rounded text-text-primary text-xs tabular-nums focus:outline-none focus:ring-1 focus:ring-accent"
                               />
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-text-muted">
                                 {!set.rpe ? 'Not set' :
                                  set.rpe <= 6 ? 'Easy' :
                                  set.rpe <= 8 ? 'Moderate' :
@@ -421,7 +438,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                     updateExercise(exercise.id, 'notes', e.target.value)
                   }
                   onKeyDown={handleKeyDown}
-                  className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                   placeholder="Exercise notes (optional)"
                 />
               </div>
@@ -435,7 +452,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+          className="px-6 py-2 bg-surface-elevated hover:bg-surface-highlight text-text-primary rounded-lg transition-colors min-h-[44px]"
           disabled={isSubmitting}
         >
           Cancel
@@ -443,7 +460,7 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex items-center px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg transition-colors"
+          className="flex items-center px-6 py-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-lg transition-colors min-h-[44px]"
         >
           <SaveIcon className="h-4 w-4 mr-2" />
           {isSubmitting ? 'Saving...' : 'Save Workout'}
@@ -461,6 +478,7 @@ SessionForm.propTypes = {
     title: PropTypes.string,
     date: PropTypes.string,
     notes: PropTypes.string,
+    status: PropTypes.oneOf(['COMPLETED', 'CANCELLED', 'DRAFT']),
     exercises: PropTypes.array,
   }),
 }

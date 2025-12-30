@@ -89,6 +89,7 @@ export async function POST(request) {
           date: new Date(data.date),
           duration: data.duration || null,
           notes: data.notes || null,
+          status: data.status || 'COMPLETED',
         }
       });
 

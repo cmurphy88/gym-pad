@@ -96,11 +96,6 @@ lib/
 - `POST /api/templates` - Create new template
 - `GET /api/templates/[id]/latest-data` - Get exercise prefill data
 
-**Weight Tracking:**
-- `GET /api/weight` - Get weight history
-- `POST /api/weight` - Add weight entry
-- `GET /api/weight/goal` - Get weight goal
-
 ## Component Architecture
 
 **Core Components:**
@@ -109,7 +104,6 @@ lib/
 - `SessionDetail.jsx` - Workout display and management
 - `ExerciseItem.jsx` - Individual exercise component with RPE
 - `ProgressChart.jsx` - Exercise history visualization
-- `WeightTracker.jsx` - Weight monitoring interface
 - `TemplateEditor.jsx` - Template creation/editing
 - `AuthForm.jsx` - Login/registration forms
 
@@ -206,7 +200,6 @@ When in plan mode and creating .md files for project planning, documentation, or
 - RPE system is core to the workout tracking methodology
 - Template system prevents exercise data contamination between different workout types
 - All timestamps should be handled in UTC and converted to local time in UI
-- Weight tracking includes goal setting and progress monitoring
 
 ## Troubleshooting
 

@@ -31,7 +31,8 @@ export async function GET(request) {
         id: true,
         title: true,
         date: true,
-        notes: true
+        notes: true,
+        status: true
       },
       orderBy: {
         date: 'asc'

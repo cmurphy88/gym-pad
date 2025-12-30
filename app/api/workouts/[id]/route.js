@@ -107,7 +107,7 @@ export async function PUT(request, { params }) {
     const result = await prisma.$transaction(async (prisma) => {
       // Update the workout
       const workout = await prisma.workout.update({
-        where: { 
+        where: {
           id: workoutId,
           userId: auth.user.id
         },
@@ -115,6 +115,7 @@ export async function PUT(request, { params }) {
           title: data.title,
           date: new Date(data.date),
           notes: data.notes || null,
+          ...(data.status && { status: data.status }),
         }
       });
 
