@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { 
-  PlusIcon, 
-  TrashIcon, 
-  SaveIcon, 
-  XIcon, 
+import {
+  PlusIcon,
+  TrashIcon,
+  SaveIcon,
+  XIcon,
   ArrowLeftIcon,
-  GripVerticalIcon 
+  GripVerticalIcon,
+  ChevronDown
 } from 'lucide-react'
+import { MUSCLE_GROUPS } from '@/lib/volume-analytics'
 
 const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
   const [templateData, setTemplateData] = useState({
@@ -33,7 +35,8 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
           defaultWeight: exercise.defaultWeight || '',
           notes: exercise.notes || '',
           restSeconds: exercise.restSeconds || 60,
-          orderIndex: exercise.orderIndex
+          orderIndex: exercise.orderIndex,
+          muscleGroups: exercise.muscleGroups ? exercise.muscleGroups.split(',').map(m => m.trim()) : []
         })) : []
       })
     }
@@ -64,7 +67,8 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
       defaultWeight: '',
       notes: '',
       restSeconds: 60,
-      orderIndex: templateData.exercises.length
+      orderIndex: templateData.exercises.length,
+      muscleGroups: []
     }
     
     setTemplateData(prev => ({
@@ -83,9 +87,23 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
   const updateExercise = (exerciseId, field, value) => {
     setTemplateData(prev => ({
       ...prev,
-      exercises: prev.exercises.map(ex => 
+      exercises: prev.exercises.map(ex =>
         ex.id === exerciseId ? { ...ex, [field]: value } : ex
       )
+    }))
+  }
+
+  const toggleMuscleGroup = (exerciseId, muscle) => {
+    setTemplateData(prev => ({
+      ...prev,
+      exercises: prev.exercises.map(ex => {
+        if (ex.id !== exerciseId) return ex
+        const current = ex.muscleGroups || []
+        const updated = current.includes(muscle)
+          ? current.filter(m => m !== muscle)
+          : [...current, muscle]
+        return { ...ex, muscleGroups: updated }
+      })
     }))
   }
 
@@ -158,7 +176,8 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
         defaultWeight: exercise.defaultWeight ? parseFloat(exercise.defaultWeight) : null,
         notes: exercise.notes.trim() || null,
         restSeconds: exercise.restSeconds ? parseInt(exercise.restSeconds) : null,
-        orderIndex: index
+        orderIndex: index,
+        muscleGroups: exercise.muscleGroups?.length > 0 ? exercise.muscleGroups.join(', ') : null
       }))
     }
 
@@ -386,6 +405,33 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     placeholder="Exercise notes (optional)"
                     disabled={isSubmitting}
                   />
+                </div>
+
+                {/* Muscle Groups */}
+                <div className="mt-3">
+                  <label className="block text-xs font-medium text-gray-400 mb-2">
+                    Muscle Groups (for volume tracking)
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {MUSCLE_GROUPS.map((muscle) => {
+                      const isSelected = exercise.muscleGroups?.includes(muscle)
+                      return (
+                        <button
+                          key={muscle}
+                          type="button"
+                          onClick={() => toggleMuscleGroup(exercise.id, muscle)}
+                          disabled={isSubmitting}
+                          className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                            isSelected
+                              ? 'bg-blue-500/20 border-blue-500 text-blue-400'
+                              : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                          }`}
+                        >
+                          {muscle}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             ))}

@@ -103,6 +103,7 @@ model TemplateExercise {
   restSeconds    Int?            @map("rest_seconds")
   createdAt      DateTime        @default(now()) @map("created_at")
   targetRepRange String?         @map("target_rep_range")
+  muscleGroups   String?         @map("muscle_groups")
   template       SessionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
   @@map("template_exercises")

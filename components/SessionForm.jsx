@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { PlusIcon, TrashIcon, SaveIcon, XIcon } from 'lucide-react'
+import { PlusIcon, TrashIcon, SaveIcon, XIcon, Lightbulb } from 'lucide-react'
 import TemplateGuidance from './TemplateGuidance'
+import ProgressionBadge from './ProgressionBadge'
+import { getProgressionSuggestion, formatSuggestionText, PROGRESSION_STATUS } from '@/lib/progression-suggestions'
 
 const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
   const [workoutData, setWorkoutData] = useState({
@@ -268,24 +270,61 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
         )}
 
         <div className="space-y-4">
-          {workoutData.exercises.map((exercise, exerciseIndex) => (
+          {workoutData.exercises.map((exercise, exerciseIndex) => {
+            // Calculate progression suggestion if template guidance exists
+            const suggestion = exercise.templateGuidance?.exerciseHistory
+              ? getProgressionSuggestion(
+                  exercise.templateGuidance.exerciseHistory,
+                  exercise.templateGuidance.targetRepRange
+                )
+              : null
+            const showSuggestion = suggestion && suggestion.status !== PROGRESSION_STATUS.NO_DATA
+
+            return (
             <div key={exercise.id} className="bg-surface-elevated rounded-xl p-4">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1 mr-4">
-                  <input
-                    type="text"
-                    value={exercise.name}
-                    onChange={(e) =>
-                      updateExercise(exercise.id, 'name', e.target.value)
-                    }
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
-                    placeholder="Exercise name"
-                  />
+                  <div className="flex items-center gap-2 mb-1">
+                    <input
+                      type="text"
+                      value={exercise.name}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, 'name', e.target.value)
+                      }
+                      onKeyDown={handleKeyDown}
+                      className="flex-1 px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
+                      placeholder="Exercise name"
+                    />
+                    {showSuggestion && (
+                      <ProgressionBadge
+                        status={suggestion.status}
+                        size="sm"
+                        showLabel
+                        shortMessage={suggestion.shortMessage}
+                      />
+                    )}
+                  </div>
                   {errors[`exercise_${exerciseIndex}_name`] && (
                     <p className="text-red-400 text-sm mt-1">
                       {errors[`exercise_${exerciseIndex}_name`]}
                     </p>
+                  )}
+                  {/* Progression Suggestion Tip */}
+                  {showSuggestion && suggestion.status === PROGRESSION_STATUS.READY && (
+                    <div className="flex items-start gap-2 mt-2 p-2 bg-emerald-400/10 border border-emerald-400/20 rounded-lg">
+                      <Lightbulb className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs text-emerald-300">
+                        {formatSuggestionText(suggestion)}
+                      </span>
+                    </div>
+                  )}
+                  {showSuggestion && suggestion.status === PROGRESSION_STATUS.ATTENTION && (
+                    <div className="flex items-start gap-2 mt-2 p-2 bg-orange-400/10 border border-orange-400/20 rounded-lg">
+                      <Lightbulb className="h-4 w-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs text-orange-300">
+                        {formatSuggestionText(suggestion)}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <button
@@ -443,7 +482,8 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                 />
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 

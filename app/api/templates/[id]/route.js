@@ -98,7 +98,8 @@ export async function PUT(request, { params }) {
             defaultWeight: exercise.defaultWeight || null,
             orderIndex: exercise.orderIndex !== undefined ? exercise.orderIndex : index,
             notes: exercise.notes?.trim() || null,
-            restSeconds: exercise.restSeconds || null
+            restSeconds: exercise.restSeconds || null,
+            muscleGroups: exercise.muscleGroups?.trim() || null
           }))
 
           await prisma.templateExercise.createMany({
