@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { PlusIcon, TrashIcon, SaveIcon, XIcon, Lightbulb } from 'lucide-react'
 import TemplateGuidance from './TemplateGuidance'
 import ProgressionBadge from './ProgressionBadge'
-import { getProgressionSuggestion, formatSuggestionText, PROGRESSION_STATUS } from '@/lib/progression-suggestions'
+import {
+  getProgressionSuggestion,
+  formatSuggestionText,
+  PROGRESSION_STATUS,
+} from '@/lib/progression-suggestions'
 
 const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
   const [workoutData, setWorkoutData] = useState({
@@ -278,210 +282,221 @@ const SessionForm = ({ onSubmit, onCancel, isSubmitting, initialData }) => {
                   exercise.templateGuidance.targetRepRange
                 )
               : null
-            const showSuggestion = suggestion && suggestion.status !== PROGRESSION_STATUS.NO_DATA
+            const showSuggestion =
+              suggestion && suggestion.status !== PROGRESSION_STATUS.NO_DATA
 
             return (
-            <div key={exercise.id} className="bg-surface-elevated rounded-xl p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 mr-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <input
-                      type="text"
-                      value={exercise.name}
-                      onChange={(e) =>
-                        updateExercise(exercise.id, 'name', e.target.value)
-                      }
-                      onKeyDown={handleKeyDown}
-                      className="flex-1 px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
-                      placeholder="Exercise name"
-                    />
-                    {showSuggestion && (
-                      <ProgressionBadge
-                        status={suggestion.status}
-                        size="sm"
-                        showLabel
-                        shortMessage={suggestion.shortMessage}
+              <div
+                key={exercise.id}
+                className="bg-surface-elevated rounded-xl p-4"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1 mr-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="text"
+                        value={exercise.name}
+                        onChange={(e) =>
+                          updateExercise(exercise.id, 'name', e.target.value)
+                        }
+                        onKeyDown={handleKeyDown}
+                        className="flex-1 px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
+                        placeholder="Exercise name"
                       />
+                      {showSuggestion && (
+                        <ProgressionBadge
+                          status={suggestion.status}
+                          size="sm"
+                          showLabel
+                          shortMessage={suggestion.shortMessage}
+                        />
+                      )}
+                    </div>
+                    {errors[`exercise_${exerciseIndex}_name`] && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors[`exercise_${exerciseIndex}_name`]}
+                      </p>
                     )}
+                    {/* Progression Suggestion Tip */}
+                    {showSuggestion &&
+                      suggestion.status === PROGRESSION_STATUS.READY && (
+                        <div className="flex items-start gap-2 mt-2 p-2 bg-emerald-400/10 border border-emerald-400/20 rounded-lg">
+                          <Lightbulb className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-xs text-emerald-300">
+                            {formatSuggestionText(suggestion)}
+                          </span>
+                        </div>
+                      )}
+                    {showSuggestion &&
+                      suggestion.status === PROGRESSION_STATUS.ATTENTION && (
+                        <div className="flex items-start gap-2 mt-2 p-2 bg-orange-400/10 border border-orange-400/20 rounded-lg">
+                          <Lightbulb className="h-4 w-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-xs text-orange-300">
+                            {formatSuggestionText(suggestion)}
+                          </span>
+                        </div>
+                      )}
                   </div>
-                  {errors[`exercise_${exerciseIndex}_name`] && (
-                    <p className="text-red-400 text-sm mt-1">
-                      {errors[`exercise_${exerciseIndex}_name`]}
-                    </p>
-                  )}
-                  {/* Progression Suggestion Tip */}
-                  {showSuggestion && suggestion.status === PROGRESSION_STATUS.READY && (
-                    <div className="flex items-start gap-2 mt-2 p-2 bg-emerald-400/10 border border-emerald-400/20 rounded-lg">
-                      <Lightbulb className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-emerald-300">
-                        {formatSuggestionText(suggestion)}
-                      </span>
-                    </div>
-                  )}
-                  {showSuggestion && suggestion.status === PROGRESSION_STATUS.ATTENTION && (
-                    <div className="flex items-start gap-2 mt-2 p-2 bg-orange-400/10 border border-orange-400/20 rounded-lg">
-                      <Lightbulb className="h-4 w-4 text-orange-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-orange-300">
-                        {formatSuggestionText(suggestion)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeExercise(exercise.id)}
-                  className="p-2 text-red-400 hover:text-red-300 transition-colors"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Template Guidance */}
-              {exercise.templateGuidance && (
-                <TemplateGuidance exercise={exercise.templateGuidance} />
-              )}
-
-              {/* Sets */}
-              <div className="mb-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-text-secondary">
-                    Sets
-                  </span>
                   <button
                     type="button"
-                    onClick={() => addSet(exercise.id)}
-                    className="text-sm text-accent hover:text-accent-hover"
+                    onClick={() => removeExercise(exercise.id)}
+                    className="p-2 text-red-400 hover:text-red-300 transition-colors"
                   >
-                    + Add Set
+                    <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
 
-                {errors[`exercise_${exerciseIndex}_sets`] && (
-                  <p className="text-red-400 text-sm mb-2">
-                    {errors[`exercise_${exerciseIndex}_sets`]}
-                  </p>
+                {/* Template Guidance */}
+                {exercise.templateGuidance && (
+                  <TemplateGuidance exercise={exercise.templateGuidance} />
                 )}
 
-                <div className="space-y-2">
-                  {exercise.sets.map((set, setIndex) => {
-                    const hasWeightAndReps = set.weight && set.reps;
-                    return (
-                      <div key={setIndex} className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-text-muted w-8">
-                            #{setIndex + 1}
-                          </span>
-                          <div className="flex-1">
-                            <input
-                              type="number"
-                              value={set.weight}
-                              onChange={(e) =>
-                                updateSet(
-                                  exercise.id,
-                                  setIndex,
-                                  'weight',
-                                  e.target.value
-                                )
-                              }
-                              onKeyDown={handleKeyDown}
-                              className="w-full px-2 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
-                              placeholder="Weight (kg)"
-                              step="0.5"
-                              min="0"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <input
-                              type="number"
-                              value={set.reps}
-                              onChange={(e) =>
-                                updateSet(
-                                  exercise.id,
-                                  setIndex,
-                                  'reps',
-                                  e.target.value
-                                )
-                              }
-                              onKeyDown={handleKeyDown}
-                              className="w-full px-2 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
-                              placeholder="Reps"
-                              min="1"
-                            />
-                            {errors[
-                              `exercise_${exerciseIndex}_set_${setIndex}_reps`
-                            ] && (
-                              <p className="text-red-400 text-xs mt-1">
-                                {
-                                  errors[
-                                    `exercise_${exerciseIndex}_set_${setIndex}_reps`
-                                  ]
-                                }
-                              </p>
-                            )}
-                          </div>
-                          {exercise.sets.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeSet(exercise.id, setIndex)}
-                              className="p-1 text-red-400 hover:text-red-300"
-                            >
-                              <XIcon className="h-3 w-3" />
-                            </button>
-                          )}
-                        </div>
+                {/* Sets */}
+                <div className="mb-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-text-secondary">
+                      Sets
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => addSet(exercise.id)}
+                      className="text-sm text-accent hover:text-accent-hover"
+                    >
+                      + Add Set
+                    </button>
+                  </div>
 
-                        {/* RPE Input - only show when weight and reps are filled */}
-                        {hasWeightAndReps && (
-                          <div className="ml-10 flex items-center gap-3">
-                            <span className="text-xs text-text-muted w-8">RPE:</span>
-                            <div className="flex items-center gap-2">
+                  {errors[`exercise_${exerciseIndex}_sets`] && (
+                    <p className="text-red-400 text-sm mb-2">
+                      {errors[`exercise_${exerciseIndex}_sets`]}
+                    </p>
+                  )}
+
+                  <div className="space-y-2">
+                    {exercise.sets.map((set, setIndex) => {
+                      const hasWeightAndReps = set.weight && set.reps
+                      return (
+                        <div key={setIndex} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-text-muted w-8">
+                              #{setIndex + 1}
+                            </span>
+                            <div className="flex-1">
                               <input
                                 type="number"
-                                min="1"
-                                max="10"
-                                step="1"
-                                value={set.rpe || ''}
-                                placeholder="7"
+                                value={set.weight}
                                 onChange={(e) =>
                                   updateSet(
                                     exercise.id,
                                     setIndex,
-                                    'rpe',
-                                    parseInt(e.target.value)
+                                    'weight',
+                                    e.target.value
                                   )
                                 }
                                 onKeyDown={handleKeyDown}
-                                className="w-12 px-2 py-1 bg-surface-highlight border border-border rounded text-text-primary text-xs tabular-nums focus:outline-none focus:ring-1 focus:ring-accent"
+                                className="w-full px-2 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
+                                placeholder="Weight (kg)"
+                                step="0.5"
+                                min="0"
                               />
-                              <span className="text-xs text-text-muted">
-                                {!set.rpe ? 'Not set' :
-                                 set.rpe <= 6 ? 'Easy' :
-                                 set.rpe <= 8 ? 'Moderate' :
-                                 'Hard'}
-                              </span>
                             </div>
+                            <div className="flex-1">
+                              <input
+                                type="number"
+                                value={set.reps}
+                                onChange={(e) =>
+                                  updateSet(
+                                    exercise.id,
+                                    setIndex,
+                                    'reps',
+                                    e.target.value
+                                  )
+                                }
+                                onKeyDown={handleKeyDown}
+                                className="w-full px-2 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
+                                placeholder="Reps"
+                                min="1"
+                              />
+                              {errors[
+                                `exercise_${exerciseIndex}_set_${setIndex}_reps`
+                              ] && (
+                                <p className="text-red-400 text-xs mt-1">
+                                  {
+                                    errors[
+                                      `exercise_${exerciseIndex}_set_${setIndex}_reps`
+                                    ]
+                                  }
+                                </p>
+                              )}
+                            </div>
+                            {exercise.sets.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeSet(exercise.id, setIndex)}
+                                className="p-1 text-red-400 hover:text-red-300"
+                              >
+                                <XIcon className="h-3 w-3" />
+                              </button>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+
+                          {/* RPE Input - only show when weight and reps are filled */}
+                          {hasWeightAndReps && (
+                            <div className="ml-10 flex items-center gap-3">
+                              <span className="text-xs text-text-muted w-8">
+                                RPE:
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="10"
+                                  step="1"
+                                  value={set.rpe || ''}
+                                  placeholder="7"
+                                  onChange={(e) =>
+                                    updateSet(
+                                      exercise.id,
+                                      setIndex,
+                                      'rpe',
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                  onKeyDown={handleKeyDown}
+                                  className="w-12 px-2 py-1 bg-surface-highlight border border-border rounded text-text-primary text-xs tabular-nums focus:outline-none focus:ring-1 focus:ring-accent"
+                                />
+                                <span className="text-xs text-text-muted">
+                                  {!set.rpe
+                                    ? 'Not set'
+                                    : set.rpe <= 6
+                                    ? 'Easy'
+                                    : set.rpe <= 8
+                                    ? 'Moderate'
+                                    : 'Hard'}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Exercise Notes */}
+                <div>
+                  <input
+                    type="text"
+                    value={exercise.notes}
+                    onChange={(e) =>
+                      updateExercise(exercise.id, 'notes', e.target.value)
+                    }
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
+                    placeholder="Exercise notes (optional)"
+                  />
                 </div>
               </div>
-
-              {/* Exercise Notes */}
-              <div>
-                <input
-                  type="text"
-                  value={exercise.notes}
-                  onChange={(e) =>
-                    updateExercise(exercise.id, 'notes', e.target.value)
-                  }
-                  onKeyDown={handleKeyDown}
-                  className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
-                  placeholder="Exercise notes (optional)"
-                />
-              </div>
-            </div>
             )
           })}
         </div>
