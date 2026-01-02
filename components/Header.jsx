@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon, LogOutIcon } from 'lucide-react'
+import { DumbbellIcon, CalendarIcon, UserIcon, SettingsIcon, LogOutIcon, TrendingUp } from 'lucide-react'
 import CalendarModal from './CalendarModal'
 
 /**
@@ -21,6 +21,10 @@ const Header = () => {
 
   const handleTemplatesClick = () => {
     router.push('/templates')
+  }
+
+  const handleInsightsClick = () => {
+    router.push('/insights')
   }
 
   const handleCalendarClick = () => {
@@ -67,6 +71,13 @@ const Header = () => {
             title="Manage Templates"
           >
             <SettingsIcon className="h-4 w-4 text-text-secondary" />
+          </button>
+          <button
+            onClick={handleInsightsClick}
+            className="p-1.5 rounded-md hover:bg-surface-elevated transition-colors"
+            title="Training Insights"
+          >
+            <TrendingUp className="h-4 w-4 text-text-secondary" />
           </button>
           <button
             onClick={handleCalendarClick}

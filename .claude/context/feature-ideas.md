@@ -10,7 +10,16 @@ See `pr-tracking-plan.md` for implementation details.
 
 ---
 
-## 2. Progressive Overload Suggestions
+## 2. Progressive Overload Suggestions ✅ COMPLETE
+
+**Implemented:**
+- `lib/progression-suggestions.js` - Core suggestion utilities
+- `components/ProgressionBadge.jsx` - Status badge component
+- `components/InsightsDashboard.jsx` - Insights page content
+- `app/insights/page.js` - Dedicated insights page
+- `app/api/insights/route.js` - API for aggregated insights
+- Modified `SessionForm.jsx` - Progression badges in template prefill
+- Modified `Header.jsx` - Navigation link to insights page
 
 ### Overview
 Analyze recent workout history and RPE trends to suggest when to increase weight.
@@ -85,7 +94,15 @@ THEN suggest: "Consider a deload or try micro-plates"
 
 ---
 
-## 3. Volume Analytics
+## 3. Volume Analytics ✅ COMPLETE
+
+**Implemented:**
+- `lib/volume-analytics.js` - Volume calculation utilities
+- `components/VolumeCharts.jsx` - Volume visualizations (weekly trend, muscle breakdown, balance)
+- Modified `components/TemplateEditor.jsx` - Muscle groups selector for exercises
+- Modified template API routes - Save muscleGroups field
+- Modified `app/api/insights/route.js` - Volume data in insights response
+- Modified `components/InsightsDashboard.jsx` - Integrated VolumeCharts
 
 ### Overview
 Track and visualize training volume per muscle group over time.
@@ -211,9 +228,9 @@ const primaryMuscle = {
 
 ## Implementation Order (Recommended)
 
-1. **PR Tracking** - High value, uses existing data
-2. **Progressive Overload Suggestions** - Complements PR tracking
-3. **Volume Analytics** - Builds on exercise data
+1. **PR Tracking** ✅ - High value, uses existing data
+2. **Progressive Overload Suggestions** ✅ - Complements PR tracking
+3. **Volume Analytics** ✅ - Builds on exercise data
 4. **Rest Timer** - Practical during workouts
 5. **Other features** - As needed
 

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { 
-  PlusIcon, 
-  TrashIcon, 
-  SaveIcon, 
-  XIcon, 
+import {
+  PlusIcon,
+  TrashIcon,
+  SaveIcon,
   ArrowLeftIcon,
-  GripVerticalIcon 
+  GripVerticalIcon,
 } from 'lucide-react'
+import { MUSCLE_GROUPS } from '@/lib/volume-analytics'
 
 const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
   const [templateData, setTemplateData] = useState({
     name: '',
     description: '',
-    exercises: []
+    exercises: [],
   })
 
   const [errors, setErrors] = useState({})
@@ -24,32 +24,37 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
       setTemplateData({
         name: template.name || '',
         description: template.description || '',
-        exercises: template.templateExercises ? template.templateExercises.map(exercise => ({
-          id: exercise.id,
-          name: exercise.exerciseName,
-          defaultSets: exercise.defaultSets || 3,
-          defaultReps: exercise.defaultReps || 8,
-          targetRepRange: exercise.targetRepRange || '',
-          defaultWeight: exercise.defaultWeight || '',
-          notes: exercise.notes || '',
-          restSeconds: exercise.restSeconds || 60,
-          orderIndex: exercise.orderIndex
-        })) : []
+        exercises: template.templateExercises
+          ? template.templateExercises.map((exercise) => ({
+              id: exercise.id,
+              name: exercise.exerciseName,
+              defaultSets: exercise.defaultSets || 3,
+              defaultReps: exercise.defaultReps || 8,
+              targetRepRange: exercise.targetRepRange || '',
+              defaultWeight: exercise.defaultWeight || '',
+              notes: exercise.notes || '',
+              restSeconds: exercise.restSeconds || 60,
+              orderIndex: exercise.orderIndex,
+              muscleGroups: exercise.muscleGroups
+                ? exercise.muscleGroups.split(',').map((m) => m.trim())
+                : [],
+            }))
+          : [],
       })
     }
   }, [template])
 
   const handleTemplateChange = (field, value) => {
-    setTemplateData(prev => ({
+    setTemplateData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }))
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: '',
       }))
     }
   }
@@ -64,54 +69,75 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
       defaultWeight: '',
       notes: '',
       restSeconds: 60,
-      orderIndex: templateData.exercises.length
+      orderIndex: templateData.exercises.length,
+      muscleGroups: [],
     }
-    
-    setTemplateData(prev => ({
+
+    setTemplateData((prev) => ({
       ...prev,
-      exercises: [...prev.exercises, newExercise]
+      exercises: [...prev.exercises, newExercise],
     }))
   }
 
   const removeExercise = (exerciseId) => {
-    setTemplateData(prev => ({
+    setTemplateData((prev) => ({
       ...prev,
-      exercises: prev.exercises.filter(ex => ex.id !== exerciseId)
+      exercises: prev.exercises.filter((ex) => ex.id !== exerciseId),
     }))
   }
 
   const updateExercise = (exerciseId, field, value) => {
-    setTemplateData(prev => ({
+    setTemplateData((prev) => ({
       ...prev,
-      exercises: prev.exercises.map(ex => 
+      exercises: prev.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, [field]: value } : ex
-      )
+      ),
+    }))
+  }
+
+  const toggleMuscleGroup = (exerciseId, muscle) => {
+    setTemplateData((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((ex) => {
+        if (ex.id !== exerciseId) return ex
+        const current = ex.muscleGroups || []
+        const updated = current.includes(muscle)
+          ? current.filter((m) => m !== muscle)
+          : [...current, muscle]
+        return { ...ex, muscleGroups: updated }
+      }),
     }))
   }
 
   const moveExercise = (exerciseId, direction) => {
-    setTemplateData(prev => {
+    setTemplateData((prev) => {
       const exercises = [...prev.exercises]
-      const currentIndex = exercises.findIndex(ex => ex.id === exerciseId)
-      
+      const currentIndex = exercises.findIndex((ex) => ex.id === exerciseId)
+
       if (direction === 'up' && currentIndex > 0) {
-        [exercises[currentIndex], exercises[currentIndex - 1]] = [exercises[currentIndex - 1], exercises[currentIndex]]
+        ;[exercises[currentIndex], exercises[currentIndex - 1]] = [
+          exercises[currentIndex - 1],
+          exercises[currentIndex],
+        ]
       } else if (direction === 'down' && currentIndex < exercises.length - 1) {
-        [exercises[currentIndex], exercises[currentIndex + 1]] = [exercises[currentIndex + 1], exercises[currentIndex]]
+        ;[exercises[currentIndex], exercises[currentIndex + 1]] = [
+          exercises[currentIndex + 1],
+          exercises[currentIndex],
+        ]
       }
-      
+
       // Update order indices
       exercises.forEach((exercise, index) => {
         exercise.orderIndex = index
       })
-      
+
       return { ...prev, exercises }
     })
   }
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!templateData.name.trim()) {
       newErrors.name = 'Template name is required'
     }
@@ -125,13 +151,15 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
       if (!exercise.name.trim()) {
         newErrors[`exercise_${index}_name`] = 'Exercise name is required'
       }
-      
+
       if (!exercise.defaultSets || exercise.defaultSets <= 0) {
-        newErrors[`exercise_${index}_sets`] = 'Default sets must be a positive number'
+        newErrors[`exercise_${index}_sets`] =
+          'Default sets must be a positive number'
       }
-      
+
       if (!exercise.defaultReps || exercise.defaultReps <= 0) {
-        newErrors[`exercise_${index}_reps`] = 'Default reps must be a positive number'
+        newErrors[`exercise_${index}_reps`] =
+          'Default reps must be a positive number'
       }
     })
 
@@ -141,7 +169,7 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
@@ -155,11 +183,19 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
         defaultSets: parseInt(exercise.defaultSets),
         defaultReps: parseInt(exercise.defaultReps),
         targetRepRange: exercise.targetRepRange.trim() || null,
-        defaultWeight: exercise.defaultWeight ? parseFloat(exercise.defaultWeight) : null,
+        defaultWeight: exercise.defaultWeight
+          ? parseFloat(exercise.defaultWeight)
+          : null,
         notes: exercise.notes.trim() || null,
-        restSeconds: exercise.restSeconds ? parseInt(exercise.restSeconds) : null,
-        orderIndex: index
-      }))
+        restSeconds: exercise.restSeconds
+          ? parseInt(exercise.restSeconds)
+          : null,
+        orderIndex: index,
+        muscleGroups:
+          exercise.muscleGroups?.length > 0
+            ? exercise.muscleGroups.join(', ')
+            : null,
+      })),
     }
 
     await onSave(formattedData)
@@ -186,7 +222,9 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Template Details */}
         <div className="bg-surface rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-text-primary mb-4">Template Details</h2>
+          <h2 className="text-xl font-semibold text-text-primary mb-4">
+            Template Details
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -213,7 +251,9 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
               <input
                 type="text"
                 value={templateData.description}
-                onChange={(e) => handleTemplateChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleTemplateChange('description', e.target.value)
+                }
                 className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
                 placeholder="Brief description of this template"
                 disabled={isSubmitting}
@@ -225,7 +265,9 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
         {/* Exercises */}
         <div className="bg-surface rounded-2xl p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-text-primary">Exercises</h2>
+            <h2 className="text-xl font-semibold text-text-primary">
+              Exercises
+            </h2>
             <button
               type="button"
               onClick={addExercise}
@@ -243,7 +285,10 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
 
           <div className="space-y-4">
             {templateData.exercises.map((exercise, exerciseIndex) => (
-              <div key={exercise.id} className="bg-surface-elevated rounded-xl p-4">
+              <div
+                key={exercise.id}
+                className="bg-surface-elevated rounded-xl p-4"
+              >
                 <div className="flex items-center gap-2 mb-3">
                   {/* Drag handle and order controls */}
                   <div className="flex flex-col gap-1">
@@ -259,7 +304,10 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <button
                       type="button"
                       onClick={() => moveExercise(exercise.id, 'down')}
-                      disabled={exerciseIndex === templateData.exercises.length - 1 || isSubmitting}
+                      disabled={
+                        exerciseIndex === templateData.exercises.length - 1 ||
+                        isSubmitting
+                      }
                       className="p-1 text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
                     >
                       ▼
@@ -270,7 +318,9 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <input
                       type="text"
                       value={exercise.name}
-                      onChange={(e) => updateExercise(exercise.id, 'name', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, 'name', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px]"
                       placeholder="Exercise name"
                       disabled={isSubmitting}
@@ -301,7 +351,13 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <input
                       type="number"
                       value={exercise.defaultSets}
-                      onChange={(e) => updateExercise(exercise.id, 'defaultSets', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          'defaultSets',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       min="1"
                       disabled={isSubmitting}
@@ -320,7 +376,13 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <input
                       type="number"
                       value={exercise.defaultReps}
-                      onChange={(e) => updateExercise(exercise.id, 'defaultReps', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          'defaultReps',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       min="1"
                       disabled={isSubmitting}
@@ -339,7 +401,13 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <input
                       type="text"
                       value={exercise.targetRepRange}
-                      onChange={(e) => updateExercise(exercise.id, 'targetRepRange', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          'targetRepRange',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       placeholder="8-12, AMRAP, etc."
                       disabled={isSubmitting}
@@ -353,7 +421,13 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <input
                       type="number"
                       value={exercise.defaultWeight}
-                      onChange={(e) => updateExercise(exercise.id, 'defaultWeight', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          'defaultWeight',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       step="0.5"
                       min="0"
@@ -368,7 +442,13 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                     <input
                       type="number"
                       value={exercise.restSeconds}
-                      onChange={(e) => updateExercise(exercise.id, 'restSeconds', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          'restSeconds',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-2 py-2 bg-surface-highlight border border-border rounded text-text-primary text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                       min="0"
                       disabled={isSubmitting}
@@ -381,11 +461,40 @@ const TemplateEditor = ({ template, onSave, onCancel, isSubmitting }) => {
                   <input
                     type="text"
                     value={exercise.notes}
-                    onChange={(e) => updateExercise(exercise.id, 'notes', e.target.value)}
+                    onChange={(e) =>
+                      updateExercise(exercise.id, 'notes', e.target.value)
+                    }
                     className="w-full px-3 py-2 bg-surface-highlight border border-border rounded-lg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent min-h-[44px]"
                     placeholder="Exercise notes (optional)"
                     disabled={isSubmitting}
                   />
+                </div>
+
+                {/* Muscle Groups */}
+                <div className="mt-3">
+                  <label className="block text-xs font-medium text-gray-400 mb-2">
+                    Muscle Groups (for volume tracking)
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {MUSCLE_GROUPS.map((muscle) => {
+                      const isSelected = exercise.muscleGroups?.includes(muscle)
+                      return (
+                        <button
+                          key={muscle}
+                          type="button"
+                          onClick={() => toggleMuscleGroup(exercise.id, muscle)}
+                          disabled={isSubmitting}
+                          className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                            isSelected
+                              ? 'bg-blue-500/20 border-blue-500 text-blue-400'
+                              : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                          }`}
+                        >
+                          {muscle}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             ))}
