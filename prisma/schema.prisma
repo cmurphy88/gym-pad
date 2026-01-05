@@ -14,13 +14,14 @@ enum WorkoutStatus {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  createdAt DateTime  @default(now()) @map("created_at")
-  password  String
-  username  String    @unique
-  sessions  Session[]
-  workouts  Workout[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now()) @map("created_at")
+  password     String
+  username     String        @unique
+  sessions     Session[]
+  workouts     Workout[]
+  savingsGoals SavingsGoal[]
 
   @@map("users")
 }
@@ -119,4 +120,32 @@ model WorkoutExerciseSwap {
   workout              Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
   @@map("workout_exercise_swaps")
+}
+
+model SavingsGoal {
+  id           Int                  @id @default(autoincrement())
+  userId       Int                  @map("user_id")
+  name         String
+  targetAmount Float                @map("target_amount")
+  endDate      DateTime             @map("end_date")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions SavingsTransaction[]
+
+  @@map("savings_goals")
+}
+
+model SavingsTransaction {
+  id        Int         @id @default(autoincrement())
+  goalId    Int         @map("goal_id")
+  amount    Float
+  note      String?
+  date      DateTime    @default(now())
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  goal      SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@map("savings_transactions")
 }
