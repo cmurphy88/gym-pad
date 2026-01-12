@@ -4,29 +4,43 @@ import { requireAuth } from '@/lib/middleware';
 import { validateSavingsGoal } from '@/lib/validations';
 
 /**
- * GET /api/savings-goal
- * Get the user's active savings goal with transactions
+ * GET /api/savings-goals/[id]
+ * Get a specific savings goal by ID
  */
-export async function GET(request) {
+export async function GET(request, { params }) {
   try {
     const auth = await requireAuth(request);
     if (auth instanceof NextResponse) return auth;
 
+    const { id } = await params;
+    const goalId = parseInt(id, 10);
+
+    if (isNaN(goalId)) {
+      return NextResponse.json(
+        { error: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
+
     const goal = await prisma.savingsGoal.findFirst({
-      where: { userId: auth.user.id },
+      where: {
+        id: goalId,
+        userId: auth.user.id
+      },
       include: {
         transactions: {
           orderBy: { date: 'desc' }
         }
-      },
-      orderBy: { createdAt: 'desc' }
+      }
     });
 
     if (!goal) {
-      return NextResponse.json({ goal: null });
+      return NextResponse.json(
+        { error: 'Savings goal not found' },
+        { status: 404 }
+      );
     }
 
-    // Calculate current balance from transactions
     const currentBalance = goal.transactions.reduce((sum, t) => sum + t.amount, 0);
 
     return NextResponse.json({
@@ -45,13 +59,23 @@ export async function GET(request) {
 }
 
 /**
- * POST /api/savings-goal
- * Create a new savings goal (replaces existing if any)
+ * PUT /api/savings-goals/[id]
+ * Update a specific savings goal
  */
-export async function POST(request) {
+export async function PUT(request, { params }) {
   try {
     const auth = await requireAuth(request);
     if (auth instanceof NextResponse) return auth;
+
+    const { id } = await params;
+    const goalId = parseInt(id, 10);
+
+    if (isNaN(goalId)) {
+      return NextResponse.json(
+        { error: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
 
     const body = await request.json();
     const validation = validateSavingsGoal(body);
@@ -63,73 +87,24 @@ export async function POST(request) {
       );
     }
 
-    // Delete any existing goals for this user (single goal at a time)
-    await prisma.savingsGoal.deleteMany({
-      where: { userId: auth.user.id }
-    });
-
-    // Create the new goal
-    const goal = await prisma.savingsGoal.create({
-      data: {
-        userId: auth.user.id,
-        name: body.name.trim(),
-        targetAmount: body.targetAmount,
-        endDate: new Date(body.endDate)
-      },
-      include: {
-        transactions: true
-      }
-    });
-
-    return NextResponse.json({
-      goal: {
-        ...goal,
-        currentBalance: 0
-      }
-    });
-  } catch (error) {
-    console.error('Error creating savings goal:', error);
-    return NextResponse.json(
-      { error: 'Failed to create savings goal' },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * PUT /api/savings-goal
- * Update the current savings goal
- */
-export async function PUT(request) {
-  try {
-    const auth = await requireAuth(request);
-    if (auth instanceof NextResponse) return auth;
-
-    const body = await request.json();
-    const validation = validateSavingsGoal(body);
-
-    if (!validation.isValid) {
-      return NextResponse.json(
-        { error: validation.errors.join(', ') },
-        { status: 400 }
-      );
-    }
-
-    // Find existing goal
+    // Find existing goal and verify ownership
     const existingGoal = await prisma.savingsGoal.findFirst({
-      where: { userId: auth.user.id }
+      where: {
+        id: goalId,
+        userId: auth.user.id
+      }
     });
 
     if (!existingGoal) {
       return NextResponse.json(
-        { error: 'No savings goal found' },
+        { error: 'Savings goal not found' },
         { status: 404 }
       );
     }
 
     // Update the goal
     const goal = await prisma.savingsGoal.update({
-      where: { id: existingGoal.id },
+      where: { id: goalId },
       data: {
         name: body.name.trim(),
         targetAmount: body.targetAmount,
@@ -160,16 +135,42 @@ export async function PUT(request) {
 }
 
 /**
- * DELETE /api/savings-goal
- * Delete the current savings goal
+ * DELETE /api/savings-goals/[id]
+ * Delete a specific savings goal
  */
-export async function DELETE(request) {
+export async function DELETE(request, { params }) {
   try {
     const auth = await requireAuth(request);
     if (auth instanceof NextResponse) return auth;
 
-    await prisma.savingsGoal.deleteMany({
-      where: { userId: auth.user.id }
+    const { id } = await params;
+    const goalId = parseInt(id, 10);
+
+    if (isNaN(goalId)) {
+      return NextResponse.json(
+        { error: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
+
+    // Find and verify ownership
+    const existingGoal = await prisma.savingsGoal.findFirst({
+      where: {
+        id: goalId,
+        userId: auth.user.id
+      }
+    });
+
+    if (!existingGoal) {
+      return NextResponse.json(
+        { error: 'Savings goal not found' },
+        { status: 404 }
+      );
+    }
+
+    // Delete the goal (cascades to transactions)
+    await prisma.savingsGoal.delete({
+      where: { id: goalId }
     });
 
     return NextResponse.json({ success: true });

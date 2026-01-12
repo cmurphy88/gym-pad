@@ -5,11 +5,10 @@ import useSWR from 'swr'
 import Header from '@/components/Header'
 import SavingsGoalCard from '@/components/SavingsGoalCard'
 import SavingsGoalForm from '@/components/SavingsGoalForm'
-import SavingsHistory from '@/components/SavingsHistory'
 import AddSavingsModal from '@/components/AddSavingsModal'
 import { useAuth } from '@/contexts/AuthContext'
 import AuthForm from '@/components/AuthForm'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 
 const fetcher = (url) => fetch(url, { credentials: 'include' }).then((res) => {
   if (!res.ok) throw new Error('Failed to fetch')
@@ -18,22 +17,21 @@ const fetcher = (url) => fetch(url, { credentials: 'include' }).then((res) => {
 
 const LifePage = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
-  const [isEditing, setIsEditing] = useState(false)
-  const [showAddModal, setShowAddModal] = useState(false)
+  const [editingGoalId, setEditingGoalId] = useState(null)
+  const [showNewGoalForm, setShowNewGoalForm] = useState(false)
+  const [addModalGoalId, setAddModalGoalId] = useState(null)
 
   const { data, error, isLoading, mutate } = useSWR(
-    isAuthenticated ? '/api/savings-goal' : null,
+    isAuthenticated ? '/api/savings-goals' : null,
     fetcher
   )
 
-  const goal = data?.goal
+  const goals = data?.goals || []
 
-  // Handle create/update goal
-  const handleSubmitGoal = async (formData) => {
-    const method = goal && !isEditing ? 'POST' : goal ? 'PUT' : 'POST'
-
-    const response = await fetch('/api/savings-goal', {
-      method,
+  // Handle create new goal
+  const handleCreateGoal = async (formData) => {
+    const response = await fetch('/api/savings-goals', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(formData)
@@ -41,20 +39,38 @@ const LifePage = () => {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.error || 'Failed to save goal')
+      throw new Error(error.error || 'Failed to create goal')
     }
 
     await mutate()
-    setIsEditing(false)
+    setShowNewGoalForm(false)
+  }
+
+  // Handle update existing goal
+  const handleUpdateGoal = async (goalId, formData) => {
+    const response = await fetch(`/api/savings-goals/${goalId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(formData)
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to update goal')
+    }
+
+    await mutate()
+    setEditingGoalId(null)
   }
 
   // Handle delete goal
-  const handleDeleteGoal = async () => {
+  const handleDeleteGoal = async (goalId) => {
     if (!window.confirm('Are you sure you want to delete this savings goal? All transaction history will be lost.')) {
       return
     }
 
-    const response = await fetch('/api/savings-goal', {
+    const response = await fetch(`/api/savings-goals/${goalId}`, {
       method: 'DELETE',
       credentials: 'include'
     })
@@ -67,8 +83,8 @@ const LifePage = () => {
   }
 
   // Handle add savings transaction
-  const handleAddSavings = async (transactionData) => {
-    const response = await fetch('/api/savings-goal/transactions', {
+  const handleAddSavings = async (goalId, transactionData) => {
+    const response = await fetch(`/api/savings-goals/${goalId}/transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -81,11 +97,12 @@ const LifePage = () => {
     }
 
     await mutate()
+    setAddModalGoalId(null)
   }
 
   // Handle update transaction
-  const handleUpdateTransaction = async (transactionId, transactionData) => {
-    const response = await fetch(`/api/savings-goal/transactions/${transactionId}`, {
+  const handleUpdateTransaction = async (goalId, transactionId, transactionData) => {
+    const response = await fetch(`/api/savings-goals/${goalId}/transactions/${transactionId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -101,8 +118,8 @@ const LifePage = () => {
   }
 
   // Handle delete transaction
-  const handleDeleteTransaction = async (transactionId) => {
-    const response = await fetch(`/api/savings-goal/transactions/${transactionId}`, {
+  const handleDeleteTransaction = async (goalId, transactionId) => {
+    const response = await fetch(`/api/savings-goals/${goalId}/transactions/${transactionId}`, {
       method: 'DELETE',
       credentials: 'include'
     })
@@ -160,7 +177,7 @@ const LifePage = () => {
         <main className="flex-1 p-4 md:p-6">
           <div className="container mx-auto max-w-4xl">
             <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
-              <p className="text-red-400">Failed to load savings goal. Please try again.</p>
+              <p className="text-red-400">Failed to load savings goals. Please try again.</p>
             </div>
           </div>
         </main>
@@ -173,37 +190,65 @@ const LifePage = () => {
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="container mx-auto max-w-4xl">
-          <h1 className="text-3xl font-bold text-white mb-6">Life</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-white">Life</h1>
+            {goals.length > 0 && !showNewGoalForm && (
+              <button
+                onClick={() => setShowNewGoalForm(true)}
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                New Goal
+              </button>
+            )}
+          </div>
 
-          {/* Savings Goal Section */}
+          {/* Savings Goals Section */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-white mb-4">Savings Goal</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Savings Goals</h2>
 
-            {!goal && !isEditing ? (
-              // No goal - show create form
-              <SavingsGoalForm onSubmit={handleSubmitGoal} />
-            ) : isEditing ? (
-              // Editing existing goal
-              <SavingsGoalForm
-                onSubmit={handleSubmitGoal}
-                onCancel={() => setIsEditing(false)}
-                initialData={goal}
-              />
-            ) : (
-              // Show goal card and history
+            {/* New Goal Form */}
+            {showNewGoalForm && (
+              <div className="mb-6">
+                <SavingsGoalForm
+                  onSubmit={handleCreateGoal}
+                  onCancel={() => setShowNewGoalForm(false)}
+                />
+              </div>
+            )}
+
+            {/* No goals - show create form */}
+            {goals.length === 0 && !showNewGoalForm && (
+              <SavingsGoalForm onSubmit={handleCreateGoal} />
+            )}
+
+            {/* Goals list */}
+            {goals.length > 0 && (
               <div className="space-y-6">
-                <SavingsGoalCard
-                  goal={goal}
-                  onEdit={() => setIsEditing(true)}
-                  onDelete={handleDeleteGoal}
-                  onAddSavings={() => setShowAddModal(true)}
-                />
-
-                <SavingsHistory
-                  transactions={goal.transactions}
-                  onUpdate={handleUpdateTransaction}
-                  onDelete={handleDeleteTransaction}
-                />
+                {goals.map((goal) => (
+                  editingGoalId === goal.id ? (
+                    <SavingsGoalForm
+                      key={goal.id}
+                      onSubmit={(formData) => handleUpdateGoal(goal.id, formData)}
+                      onCancel={() => setEditingGoalId(null)}
+                      initialData={goal}
+                    />
+                  ) : (
+                    <SavingsGoalCard
+                      key={goal.id}
+                      goal={goal}
+                      onEdit={() => setEditingGoalId(goal.id)}
+                      onDelete={() => handleDeleteGoal(goal.id)}
+                      onAddSavings={() => setAddModalGoalId(goal.id)}
+                      onUpdateTransaction={(transactionId, data) =>
+                        handleUpdateTransaction(goal.id, transactionId, data)
+                      }
+                      onDeleteTransaction={(transactionId) =>
+                        handleDeleteTransaction(goal.id, transactionId)
+                      }
+                    />
+                  )
+                ))}
               </div>
             )}
           </section>
@@ -212,9 +257,9 @@ const LifePage = () => {
 
       {/* Add Savings Modal */}
       <AddSavingsModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSubmit={handleAddSavings}
+        isOpen={addModalGoalId !== null}
+        onClose={() => setAddModalGoalId(null)}
+        onSubmit={(transactionData) => handleAddSavings(addModalGoalId, transactionData)}
       />
     </div>
   )

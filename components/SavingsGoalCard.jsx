@@ -1,17 +1,38 @@
 'use client'
 
+import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { PiggyBank, Calendar, TrendingUp, Pencil, Trash2, Plus } from 'lucide-react'
-import { calculateSavingsTargets, formatCurrency } from '@/lib/savings-calculations'
+import { PiggyBank, Calendar, TrendingUp, Pencil, Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react'
+import { calculateSavingsTargets, calculateSavingsStatus, formatCurrency } from '@/lib/savings-calculations'
+import SavingsHistory from '@/components/SavingsHistory'
 
-const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings }) => {
+const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings, onUpdateTransaction, onDeleteTransaction }) => {
+  const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
+
   const targets = calculateSavingsTargets(
     goal.targetAmount,
     goal.currentBalance,
     goal.endDate
   )
 
+  const status = calculateSavingsStatus(
+    goal.targetAmount,
+    goal.currentBalance,
+    goal.createdAt,
+    goal.endDate
+  )
+
   const progressPercentage = Math.min(100, Math.max(0, targets.progress))
+
+  // Status color classes mapping
+  const statusColorClasses = {
+    purple: 'bg-purple-500/20 text-purple-400',
+    green: 'bg-green-500/20 text-green-400',
+    blue: 'bg-blue-500/20 text-blue-400',
+    red: 'bg-red-500/20 text-red-400'
+  }[status.color]
+
+  const transactionCount = goal.transactions?.length || 0
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
@@ -71,6 +92,25 @@ const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings }) => {
         <div className="flex justify-between text-sm text-gray-400 mt-1">
           <span>Saved</span>
           <span>{formatCurrency(goal.targetAmount)}</span>
+        </div>
+
+        {/* Status Indicator */}
+        <div className="mt-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColorClasses}`}>
+              {status.status}
+            </span>
+            {status.status !== 'Complete' && (
+              <span className="text-sm text-gray-400">
+                Expected: {formatCurrency(status.expectedByNow)} by today
+              </span>
+            )}
+          </div>
+          {status.catchUpAmount > 0 && (
+            <span className="text-sm text-red-400 font-medium">
+              Catch up: {formatCurrency(status.catchUpAmount)}
+            </span>
+          )}
         </div>
       </div>
 
@@ -150,6 +190,35 @@ const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings }) => {
         <Plus className="w-5 h-5" />
         Add Savings
       </button>
+
+      {/* Collapsible Transaction History */}
+      {transactionCount > 0 && (
+        <div className="mt-4 border-t border-gray-700 pt-4">
+          <button
+            onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+            className="w-full flex items-center justify-between text-gray-400 hover:text-white transition-colors"
+          >
+            <span className="text-sm font-medium">
+              Transaction History ({transactionCount})
+            </span>
+            {isHistoryExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          {isHistoryExpanded && (
+            <div className="mt-3">
+              <SavingsHistory
+                transactions={goal.transactions}
+                onUpdate={onUpdateTransaction}
+                onDelete={onDeleteTransaction}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -160,11 +229,15 @@ SavingsGoalCard.propTypes = {
     name: PropTypes.string.isRequired,
     targetAmount: PropTypes.number.isRequired,
     currentBalance: PropTypes.number.isRequired,
-    endDate: PropTypes.string.isRequired
+    endDate: PropTypes.string.isRequired,
+    createdAt: PropTypes.string.isRequired,
+    transactions: PropTypes.array
   }).isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onAddSavings: PropTypes.func.isRequired
+  onAddSavings: PropTypes.func.isRequired,
+  onUpdateTransaction: PropTypes.func,
+  onDeleteTransaction: PropTypes.func
 }
 
 export default SavingsGoalCard
