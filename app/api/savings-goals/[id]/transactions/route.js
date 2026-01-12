@@ -4,13 +4,38 @@ import { requireAuth } from '@/lib/middleware';
 import { validateSavingsTransaction } from '@/lib/validations';
 
 /**
- * POST /api/savings-goal/transactions
- * Add a new savings transaction
+ * POST /api/savings-goals/[id]/transactions
+ * Add a new transaction to a specific savings goal
  */
-export async function POST(request) {
+export async function POST(request, { params }) {
   try {
     const auth = await requireAuth(request);
     if (auth instanceof NextResponse) return auth;
+
+    const { id } = await params;
+    const goalId = parseInt(id, 10);
+
+    if (isNaN(goalId)) {
+      return NextResponse.json(
+        { error: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
+
+    // Find the goal and verify ownership
+    const goal = await prisma.savingsGoal.findFirst({
+      where: {
+        id: goalId,
+        userId: auth.user.id
+      }
+    });
+
+    if (!goal) {
+      return NextResponse.json(
+        { error: 'Savings goal not found' },
+        { status: 404 }
+      );
+    }
 
     const body = await request.json();
     const validation = validateSavingsTransaction(body);
@@ -19,18 +44,6 @@ export async function POST(request) {
       return NextResponse.json(
         { error: validation.errors.join(', ') },
         { status: 400 }
-      );
-    }
-
-    // Find the user's active goal
-    const goal = await prisma.savingsGoal.findFirst({
-      where: { userId: auth.user.id }
-    });
-
-    if (!goal) {
-      return NextResponse.json(
-        { error: 'No active savings goal found' },
-        { status: 404 }
       );
     }
 
@@ -48,7 +61,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error creating savings transaction:', error);
     return NextResponse.json(
-      { error: 'Failed to create transaction' },
+      { error: 'Failed to add savings transaction' },
       { status: 500 }
     );
   }

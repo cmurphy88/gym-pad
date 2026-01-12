@@ -96,6 +96,16 @@ lib/
 - `POST /api/templates` - Create new template
 - `GET /api/templates/[id]/latest-data` - Get exercise prefill data
 
+**Savings Goals:**
+- `GET /api/savings-goals` - List all savings goals
+- `POST /api/savings-goals` - Create new goal
+- `GET /api/savings-goals/[id]` - Get specific goal
+- `PUT /api/savings-goals/[id]` - Update goal
+- `DELETE /api/savings-goals/[id]` - Delete goal
+- `POST /api/savings-goals/[id]/transactions` - Add transaction
+- `PUT /api/savings-goals/[id]/transactions/[transactionId]` - Update transaction
+- `DELETE /api/savings-goals/[id]/transactions/[transactionId]` - Delete transaction
+
 ## Component Architecture
 
 **Core Components:**
@@ -106,6 +116,9 @@ lib/
 - `ProgressChart.jsx` - Exercise history visualization
 - `TemplateEditor.jsx` - Template creation/editing
 - `AuthForm.jsx` - Login/registration forms
+- `SavingsGoalCard.jsx` - Savings goal display with status tracking
+- `SavingsGoalForm.jsx` - Savings goal creation/editing
+- `SavingsHistory.jsx` - Transaction history list
 
 **Key Features:**
 - RPE (Rate of Perceived Exertion) scale 1-10 with color coding

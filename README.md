@@ -142,6 +142,16 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 ### Insights
 - `GET /api/insights` - Get progression suggestions and volume analytics
 
+### Savings Goals
+- `GET /api/savings-goals` - List all savings goals
+- `POST /api/savings-goals` - Create new savings goal
+- `GET /api/savings-goals/[id]` - Get specific goal
+- `PUT /api/savings-goals/[id]` - Update goal
+- `DELETE /api/savings-goals/[id]` - Delete goal
+- `POST /api/savings-goals/[id]/transactions` - Add transaction
+- `PUT /api/savings-goals/[id]/transactions/[transactionId]` - Update transaction
+- `DELETE /api/savings-goals/[id]/transactions/[transactionId]` - Delete transaction
+
 ### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login
@@ -155,6 +165,7 @@ gym-pad/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes
 │   ├── insights/          # Insights page
+│   ├── life/              # Life/Savings goals page
 │   ├── new-session/       # New workout page
 │   ├── session/[id]/      # Session detail page
 │   └── templates/         # Template management pages
@@ -163,6 +174,8 @@ gym-pad/
 │   ├── SessionForm.jsx    # Workout form
 │   ├── InsightsDashboard.jsx  # Insights view
 │   ├── VolumeCharts.jsx   # Volume analytics charts
+│   ├── SavingsGoalCard.jsx    # Savings goal display
+│   ├── SavingsGoalForm.jsx    # Savings goal form
 │   ├── PRBadge.jsx        # PR indicator badge
 │   ├── ProgressionBadge.jsx   # Progression status badge
 │   └── ...
@@ -170,6 +183,7 @@ gym-pad/
 │   ├── pr-calculations.js     # PR detection logic
 │   ├── progression-suggestions.js  # Progression logic
 │   ├── volume-analytics.js    # Volume calculations
+│   ├── savings-calculations.js    # Savings status logic
 │   └── ...
 ├── contexts/              # React contexts
 ├── prisma/                # Database schema

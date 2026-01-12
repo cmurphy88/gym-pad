@@ -463,6 +463,180 @@ Get latest workout data for template exercises.
 }
 ```
 
+## Savings Goals Endpoints
+
+#### GET /api/savings-goals
+Get all savings goals for the authenticated user.
+
+**Response:**
+```json
+{
+  "goals": [
+    {
+      "id": 1,
+      "name": "Emergency Fund",
+      "targetAmount": 5000,
+      "currentBalance": 1200,
+      "endDate": "2025-12-31T00:00:00Z",
+      "createdAt": "2025-01-01T10:00:00Z",
+      "updatedAt": "2025-01-15T10:00:00Z",
+      "transactions": [
+        {
+          "id": 1,
+          "amount": 500,
+          "note": "Initial deposit",
+          "date": "2025-01-01T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### POST /api/savings-goals
+Create a new savings goal.
+
+**Request Body:**
+```json
+{
+  "name": "string",
+  "targetAmount": 5000,
+  "endDate": "2025-12-31"
+}
+```
+
+**Response:**
+```json
+{
+  "goal": {
+    "id": 1,
+    "name": "string",
+    "targetAmount": 5000,
+    "endDate": "2025-12-31T00:00:00Z",
+    "createdAt": "2025-01-01T10:00:00Z",
+    "currentBalance": 0,
+    "transactions": []
+  }
+}
+```
+
+#### GET /api/savings-goals/[id]
+Get a specific savings goal by ID.
+
+**Response:**
+```json
+{
+  "goal": {
+    "id": 1,
+    "name": "Emergency Fund",
+    "targetAmount": 5000,
+    "currentBalance": 1200,
+    "endDate": "2025-12-31T00:00:00Z",
+    "createdAt": "2025-01-01T10:00:00Z",
+    "transactions": [...]
+  }
+}
+```
+
+#### PUT /api/savings-goals/[id]
+Update a specific savings goal.
+
+**Request Body:**
+```json
+{
+  "name": "string",
+  "targetAmount": 6000,
+  "endDate": "2025-12-31"
+}
+```
+
+**Response:**
+```json
+{
+  "goal": {
+    "id": 1,
+    "name": "string",
+    "targetAmount": 6000,
+    "endDate": "2025-12-31T00:00:00Z",
+    "currentBalance": 1200,
+    "transactions": [...]
+  }
+}
+```
+
+#### DELETE /api/savings-goals/[id]
+Delete a specific savings goal and all its transactions.
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+#### POST /api/savings-goals/[id]/transactions
+Add a new transaction to a savings goal.
+
+**Request Body:**
+```json
+{
+  "amount": 500,
+  "note": "Monthly savings",
+  "date": "2025-01-15T00:00:00Z"
+}
+```
+
+Note: `note` and `date` are optional. Date defaults to current time.
+
+**Response:**
+```json
+{
+  "transaction": {
+    "id": 1,
+    "goalId": 1,
+    "amount": 500,
+    "note": "Monthly savings",
+    "date": "2025-01-15T00:00:00Z",
+    "createdAt": "2025-01-15T10:00:00Z"
+  }
+}
+```
+
+#### PUT /api/savings-goals/[id]/transactions/[transactionId]
+Update a specific transaction.
+
+**Request Body:**
+```json
+{
+  "amount": 600,
+  "note": "Updated note",
+  "date": "2025-01-15T00:00:00Z"
+}
+```
+
+**Response:**
+```json
+{
+  "transaction": {
+    "id": 1,
+    "goalId": 1,
+    "amount": 600,
+    "note": "Updated note",
+    "date": "2025-01-15T00:00:00Z"
+  }
+}
+```
+
+#### DELETE /api/savings-goals/[id]/transactions/[transactionId]
+Delete a specific transaction.
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
 ## Error Responses
 
 All endpoints may return the following error responses:
