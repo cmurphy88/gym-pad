@@ -37,6 +37,14 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 - **Real-time Sync**: Automatic data sync and caching with SWR
 - **Mobile Responsive**: Optimized for both desktop and mobile use
 
+### Savings Goals
+- **Goal Tracking**: Set savings goals with target amounts and deadlines
+- **Deposits & Withdrawals**: Track both deposits and withdrawals with transaction history
+- **Progress Visualization**: Visual progress bar showing percentage toward goal
+- **Status Tracking**: "Ahead", "On Track", or "Behind" status based on expected progress
+- **Saving Rate**: See your actual saving rate (£/day) based on transaction history
+- **Predicted Completion**: Automatic prediction of when you'll reach your goal at current rate
+
 ## Pages
 
 | Page | Path | Description |
@@ -45,6 +53,7 @@ A modern fullstack workout tracking application built with Next.js. Track your g
 | **New Session** | `/new-session` | Create a new workout session (blank or from template) |
 | **Session Detail** | `/session/[id]` | View and edit a specific workout session |
 | **Training Insights** | `/insights` | Progression suggestions and volume analytics dashboard |
+| **Life** | `/life` | Savings goals tracking with deposits, withdrawals, and predictions |
 | **Templates** | `/templates` | Manage workout templates |
 | **New Template** | `/templates/new` | Create a new workout template |
 | **Edit Template** | `/templates/[id]/edit` | Edit an existing template |

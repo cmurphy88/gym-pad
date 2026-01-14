@@ -128,8 +128,10 @@ const SavingsHistory = ({ transactions, onUpdate, onDelete }) => {
                       month: 'short'
                     })}
                   </span>
-                  <span className="text-emerald-400 font-medium flex-shrink-0">
-                    +{formatCurrency(transaction.amount)}
+                  <span className={`font-medium flex-shrink-0 ${
+                    transaction.type === 'WITHDRAWAL' ? 'text-amber-400' : 'text-emerald-400'
+                  }`}>
+                    {transaction.type === 'WITHDRAWAL' ? '-' : '+'}{formatCurrency(transaction.amount)}
                   </span>
                   {transaction.note && (
                     <span className="text-gray-400 text-sm truncate">
@@ -167,6 +169,7 @@ SavingsHistory.propTypes = {
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       amount: PropTypes.number.isRequired,
+      type: PropTypes.oneOf(['DEPOSIT', 'WITHDRAWAL']),
       note: PropTypes.string,
       date: PropTypes.string.isRequired
     })

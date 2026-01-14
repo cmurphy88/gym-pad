@@ -2,13 +2,16 @@
 
 import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Minus } from 'lucide-react'
 
-const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
+const AddSavingsModal = ({ isOpen, onClose, onSubmit, initialType = 'DEPOSIT' }) => {
+  const [type, setType] = useState(initialType)
   const [amount, setAmount] = useState('')
   const [note, setNote] = useState('')
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const isWithdrawal = type === 'WITHDRAWAL'
 
   if (!isOpen) return null
 
@@ -25,11 +28,13 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
     try {
       await onSubmit({
         amount: parsedAmount,
+        type,
         note: note.trim() || null
       })
       // Reset form
       setAmount('')
       setNote('')
+      setType('DEPOSIT')
       setErrors({})
       onClose()
     } catch (error) {
@@ -42,6 +47,7 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
   const handleClose = () => {
     setAmount('')
     setNote('')
+    setType('DEPOSIT')
     setErrors({})
     onClose()
   }
@@ -57,16 +63,46 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
       {/* Modal */}
       <div className="relative bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700 shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-            <Plus className="w-5 h-5 text-emerald-400" />
-            Add Savings
+            {isWithdrawal ? (
+              <Minus className="w-5 h-5 text-amber-400" />
+            ) : (
+              <Plus className="w-5 h-5 text-emerald-400" />
+            )}
+            {isWithdrawal ? 'Withdraw Savings' : 'Add Savings'}
           </h3>
           <button
             onClick={handleClose}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Type Toggle */}
+        <div className="flex gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => setType('DEPOSIT')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+              !isWithdrawal
+                ? 'bg-emerald-600 text-white'
+                : 'bg-gray-700 text-gray-400 hover:text-white'
+            }`}
+          >
+            Deposit
+          </button>
+          <button
+            type="button"
+            onClick={() => setType('WITHDRAWAL')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+              isWithdrawal
+                ? 'bg-amber-600 text-white'
+                : 'bg-gray-700 text-gray-400 hover:text-white'
+            }`}
+          >
+            Withdraw
           </button>
         </div>
 
@@ -92,9 +128,9 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
                 step="0.01"
                 min="0"
                 autoFocus
-                className={`w-full pl-8 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                className={`w-full pl-8 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
                   errors.amount ? 'border-red-500' : 'border-gray-600'
-                }`}
+                } ${isWithdrawal ? 'focus:ring-amber-500' : 'focus:ring-emerald-500'}`}
               />
             </div>
             {errors.amount && (
@@ -112,8 +148,10 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
               id="note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="e.g. Weekly savings, Bonus, etc."
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder={isWithdrawal ? "e.g. Emergency expense, etc." : "e.g. Weekly savings, Bonus, etc."}
+              className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                isWithdrawal ? 'focus:ring-amber-500' : 'focus:ring-emerald-500'
+              }`}
             />
           </div>
 
@@ -136,9 +174,13 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 text-white font-medium rounded-lg transition-colors"
+              className={`flex-1 py-3 px-4 text-white font-medium rounded-lg transition-colors ${
+                isWithdrawal
+                  ? 'bg-amber-600 hover:bg-amber-700 disabled:bg-amber-600/50'
+                  : 'bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50'
+              }`}
             >
-              {isSubmitting ? 'Adding...' : 'Add Savings'}
+              {isSubmitting ? (isWithdrawal ? 'Withdrawing...' : 'Adding...') : (isWithdrawal ? 'Withdraw' : 'Add Savings')}
             </button>
           </div>
         </form>
@@ -150,7 +192,8 @@ const AddSavingsModal = ({ isOpen, onClose, onSubmit }) => {
 AddSavingsModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func.isRequired,
+  initialType: PropTypes.oneOf(['DEPOSIT', 'WITHDRAWAL'])
 }
 
 export default AddSavingsModal

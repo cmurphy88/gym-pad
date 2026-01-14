@@ -4,7 +4,7 @@ This document describes the database schema for the Gym Pad application using Po
 
 ## Overview
 
-The database consists of 6 main tables that handle user authentication, workout tracking, and session templates.
+The database consists of 9 main tables that handle user authentication, workout tracking, session templates, and savings goals.
 
 ## Database Diagram
 
@@ -12,11 +12,14 @@ The database consists of 6 main tables that handle user authentication, workout 
 erDiagram
     User ||--o{ Session : "has many"
     User ||--o{ Workout : "creates"
+    User ||--o{ SavingsGoal : "has"
 
     Workout ||--o{ Exercise : "contains"
     Workout ||--o{ WorkoutExerciseSwap : "has swaps"
 
     SessionTemplate ||--o{ TemplateExercise : "defines"
+
+    SavingsGoal ||--o{ SavingsTransaction : "has"
 
     User {
         int id PK
@@ -96,6 +99,26 @@ erDiagram
         string original_exercise_name
         string swapped_exercise_name
         string reason
+        datetime created_at
+    }
+
+    SavingsGoal {
+        int id PK
+        int user_id FK
+        string name
+        float target_amount
+        datetime end_date
+        datetime created_at
+        datetime updated_at
+    }
+
+    SavingsTransaction {
+        int id PK
+        int goal_id FK
+        float amount
+        TransactionType type
+        string note
+        datetime date
         datetime created_at
     }
 ```
@@ -237,6 +260,48 @@ Tracks when exercises are substituted during workouts.
 **Relationships:**
 - Many-to-one with Workout (parent workout)
 
+### SavingsGoal
+Stores user savings goals with target amounts and dates.
+
+**Columns:**
+- `id` (Primary Key): Auto-incrementing identifier
+- `user_id` (Foreign Key): References User.id
+- `name`: Name of the savings goal
+- `target_amount`: Target amount to save (in GBP)
+- `end_date`: Target date to reach the goal
+- `created_at`: Record creation timestamp
+- `updated_at`: Last modification timestamp
+
+**Relationships:**
+- Many-to-one with User (goal owner)
+- One-to-many with SavingsTransaction (goal transactions)
+
+### TransactionType Enum
+Defines the type of a savings transaction:
+- `DEPOSIT` - Default. Money added to the savings goal (increases balance)
+- `WITHDRAWAL` - Money removed from the savings goal (decreases balance)
+
+### SavingsTransaction
+Stores individual transactions (deposits/withdrawals) for savings goals.
+
+**Columns:**
+- `id` (Primary Key): Auto-incrementing identifier
+- `goal_id` (Foreign Key): References SavingsGoal.id
+- `amount`: Transaction amount (always positive, type determines direction)
+- `type`: Transaction type (see TransactionType enum)
+- `note`: Optional note describing the transaction
+- `date`: When the transaction occurred
+- `created_at`: Record creation timestamp
+
+**Relationships:**
+- Many-to-one with SavingsGoal (parent goal)
+
+**Balance Calculation:**
+The current balance of a savings goal is calculated as:
+```
+balance = SUM(DEPOSIT amounts) - SUM(WITHDRAWAL amounts)
+```
+
 ## Indexes
 
 The following indexes are automatically created by Prisma:
@@ -251,9 +316,10 @@ The following indexes are automatically created by Prisma:
 ### Foreign Key Constraints
 - All foreign key relationships include proper referential integrity
 - Cascade deletes are configured for dependent records:
-  - Deleting a User cascades to Sessions
+  - Deleting a User cascades to Sessions and SavingsGoals
   - Deleting a Workout cascades to Exercises and WorkoutExerciseSwaps
   - Deleting a SessionTemplate cascades to TemplateExercises
+  - Deleting a SavingsGoal cascades to SavingsTransactions
 
 ### Data Integrity
 - Required fields enforce NOT NULL constraints

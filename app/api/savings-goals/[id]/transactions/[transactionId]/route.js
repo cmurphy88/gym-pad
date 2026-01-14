@@ -50,11 +50,21 @@ export async function PUT(request, { params }) {
       );
     }
 
+    // Validate type if provided
+    const validTypes = ['DEPOSIT', 'WITHDRAWAL'];
+    if (body.type !== undefined && !validTypes.includes(body.type)) {
+      return NextResponse.json(
+        { error: 'Type must be DEPOSIT or WITHDRAWAL' },
+        { status: 400 }
+      );
+    }
+
     // Update the transaction
     const updatedTransaction = await prisma.savingsTransaction.update({
       where: { id: txId },
       data: {
         amount: body.amount ?? transaction.amount,
+        type: body.type ?? transaction.type,
         note: body.note !== undefined ? (body.note?.trim() || null) : transaction.note,
         date: body.date ? new Date(body.date) : transaction.date
       }

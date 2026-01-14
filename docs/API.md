@@ -484,6 +484,7 @@ Get all savings goals for the authenticated user.
         {
           "id": 1,
           "amount": 500,
+          "type": "DEPOSIT",
           "note": "Initial deposit",
           "date": "2025-01-01T10:00:00Z"
         }
@@ -581,12 +582,13 @@ Add a new transaction to a savings goal.
 ```json
 {
   "amount": 500,
+  "type": "DEPOSIT",
   "note": "Monthly savings",
   "date": "2025-01-15T00:00:00Z"
 }
 ```
 
-Note: `note` and `date` are optional. Date defaults to current time.
+Note: `type`, `note`, and `date` are optional. Type defaults to `"DEPOSIT"`. Date defaults to current time. Valid types: `"DEPOSIT"`, `"WITHDRAWAL"`.
 
 **Response:**
 ```json
@@ -595,6 +597,7 @@ Note: `note` and `date` are optional. Date defaults to current time.
     "id": 1,
     "goalId": 1,
     "amount": 500,
+    "type": "DEPOSIT",
     "note": "Monthly savings",
     "date": "2025-01-15T00:00:00Z",
     "createdAt": "2025-01-15T10:00:00Z"
@@ -609,10 +612,13 @@ Update a specific transaction.
 ```json
 {
   "amount": 600,
+  "type": "DEPOSIT",
   "note": "Updated note",
   "date": "2025-01-15T00:00:00Z"
 }
 ```
+
+Note: All fields are optional. Only provided fields will be updated. Valid types: `"DEPOSIT"`, `"WITHDRAWAL"`.
 
 **Response:**
 ```json
@@ -621,6 +627,7 @@ Update a specific transaction.
     "id": 1,
     "goalId": 1,
     "amount": 600,
+    "type": "DEPOSIT",
     "note": "Updated note",
     "date": "2025-01-15T00:00:00Z"
   }
@@ -700,6 +707,13 @@ The `setsData` field is a JSON string containing an array of set objects:
   }
 ]
 ```
+
+### Transaction Type
+The `type` field indicates whether a savings transaction is a deposit or withdrawal:
+- `DEPOSIT` - Default. Money added to the savings goal (increases balance)
+- `WITHDRAWAL` - Money removed from the savings goal (decreases balance)
+
+The current balance is calculated as: sum of all DEPOSIT amounts minus sum of all WITHDRAWAL amounts.
 
 ## Rate Limiting
 

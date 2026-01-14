@@ -25,7 +25,9 @@ export async function GET(request) {
     // Calculate current balance for each goal
     const goalsWithBalance = goals.map(goal => ({
       ...goal,
-      currentBalance: goal.transactions.reduce((sum, t) => sum + t.amount, 0)
+      currentBalance: goal.transactions.reduce((sum, t) => {
+        return t.type === 'WITHDRAWAL' ? sum - t.amount : sum + t.amount;
+      }, 0)
     }));
 
     return NextResponse.json({ goals: goalsWithBalance });
