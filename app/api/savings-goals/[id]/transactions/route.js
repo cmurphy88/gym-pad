@@ -52,6 +52,7 @@ export async function POST(request, { params }) {
       data: {
         goalId: goal.id,
         amount: body.amount,
+        type: body.type || 'DEPOSIT',
         note: body.note?.trim() || null,
         date: body.date ? new Date(body.date) : new Date()
       }

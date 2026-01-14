@@ -13,6 +13,11 @@ enum WorkoutStatus {
   DRAFT
 }
 
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
 model User {
   id           Int           @id @default(autoincrement())
   name         String
@@ -138,12 +143,13 @@ model SavingsGoal {
 }
 
 model SavingsTransaction {
-  id        Int         @id @default(autoincrement())
-  goalId    Int         @map("goal_id")
+  id        Int             @id @default(autoincrement())
+  goalId    Int             @map("goal_id")
   amount    Float
+  type      TransactionType @default(DEPOSIT)
   note      String?
-  date      DateTime    @default(now())
-  createdAt DateTime    @default(now()) @map("created_at")
+  date      DateTime        @default(now())
+  createdAt DateTime        @default(now()) @map("created_at")
 
   goal      SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
 

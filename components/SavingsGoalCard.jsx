@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { PiggyBank, Calendar, TrendingUp, Pencil, Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react'
-import { calculateSavingsTargets, calculateSavingsStatus, formatCurrency } from '@/lib/savings-calculations'
+import { PiggyBank, Calendar, TrendingUp, Pencil, Trash2, Plus, ChevronDown, ChevronUp, Target } from 'lucide-react'
+import { calculateSavingsTargets, calculateSavingsStatus, calculateSavingRate, predictGoalCompletion, formatCurrency } from '@/lib/savings-calculations'
 import SavingsHistory from '@/components/SavingsHistory'
 
 const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings, onUpdateTransaction, onDeleteTransaction }) => {
@@ -19,6 +19,15 @@ const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings, onUpdateTransac
     goal.targetAmount,
     goal.currentBalance,
     goal.createdAt,
+    goal.endDate
+  )
+
+  // Calculate saving rate and prediction
+  const savingRate = calculateSavingRate(goal.transactions)
+  const prediction = predictGoalCompletion(
+    goal.targetAmount,
+    goal.currentBalance,
+    savingRate.ratePerDay,
     goal.endDate
   )
 
@@ -156,6 +165,83 @@ const SavingsGoalCard = ({ goal, onEdit, onDelete, onAddSavings, onUpdateTransac
               </p>
               <p className="text-xs text-gray-400">per month</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Prediction Section - At your current rate */}
+      {!targets.isComplete && savingRate.hasEnoughData && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Target className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-400">At your current rate:</span>
+          </div>
+
+          <div className="bg-gray-700/50 rounded-lg p-4 space-y-3">
+            {/* Current Rate */}
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-400">Saving</span>
+              <span className={`text-lg font-semibold ${
+                savingRate.ratePerDay > 0 ? 'text-emerald-400' : savingRate.ratePerDay < 0 ? 'text-red-400' : 'text-gray-400'
+              }`}>
+                {formatCurrency(Math.abs(savingRate.ratePerDay))}/day
+                {savingRate.ratePerDay < 0 && <span className="text-xs ml-1">(losing)</span>}
+              </span>
+            </div>
+
+            {/* Predicted Date - On Track */}
+            {prediction.status === 'on_track' && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-400">Predicted completion</span>
+                <div className="text-right">
+                  <span className="text-emerald-400 font-medium">
+                    {new Date(prediction.predictedDate).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  {prediction.daysBeforeDeadline > 0 && (
+                    <span className="text-sm text-emerald-400/70 ml-2">
+                      ({prediction.daysBeforeDeadline} days early)
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Predicted Date - Will Miss Target */}
+            {prediction.status === 'will_miss_target' && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-400">Predicted completion</span>
+                <div className="text-right">
+                  <span className="text-amber-400 font-medium">
+                    {new Date(prediction.predictedDate).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  <span className="text-sm text-red-400 ml-2">
+                    ({prediction.daysAfterDeadline} days late)
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* No Progress State */}
+            {prediction.status === 'no_progress' && (
+              <div className="text-amber-400 text-sm">
+                No net savings yet - add deposits to see your predicted completion date
+              </div>
+            )}
+
+            {/* Losing Money State */}
+            {prediction.status === 'losing_money' && (
+              <div className="text-red-400 text-sm">
+                Withdrawals exceed deposits - add more savings to reach your goal
+              </div>
+            )}
           </div>
         </div>
       )}

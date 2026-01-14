@@ -41,7 +41,9 @@ export async function GET(request, { params }) {
       );
     }
 
-    const currentBalance = goal.transactions.reduce((sum, t) => sum + t.amount, 0);
+    const currentBalance = goal.transactions.reduce((sum, t) => {
+      return t.type === 'WITHDRAWAL' ? sum - t.amount : sum + t.amount;
+    }, 0);
 
     return NextResponse.json({
       goal: {
@@ -117,7 +119,9 @@ export async function PUT(request, { params }) {
       }
     });
 
-    const currentBalance = goal.transactions.reduce((sum, t) => sum + t.amount, 0);
+    const currentBalance = goal.transactions.reduce((sum, t) => {
+      return t.type === 'WITHDRAWAL' ? sum - t.amount : sum + t.amount;
+    }, 0);
 
     return NextResponse.json({
       goal: {
